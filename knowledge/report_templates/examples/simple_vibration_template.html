@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('振动分析报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimHei', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .header h1 {
+            color: #2c5aa0;
+            margin: 0;
+            font-size: 28px;
+        }
+        .header p {
+            margin: 5px 0;
+            color: #666;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #2c5aa0;
+            background-color: #f9f9f9;
+        }
+        .section h2 {
+            color: #2c5aa0;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #2c5aa0;
+            color: white;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+        }
+        .chart-container h3 {
+            color: #2c5aa0;
+            margin-top: 0;
+        }
+        .status-normal { color: #28a745; font-weight: bold; }
+        .status-warning { color: #ffc107; font-weight: bold; }
+        .status-danger { color: #dc3545; font-weight: bold; }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .recommendations {
+            background-color: #e8f4f8;
+            padding: 15px;
+            border-radius: 5px;
+            border-left: 4px solid #17a2b8;
+        }
+        .recommendations ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('振动分析报告') }}</h1>
+        <p><strong>设备编号:</strong> {{ turbine_id | default('未指定') }}</p>
+        <p><strong>分析日期:</strong> {{ analysis_date | default('未指定') }}</p>
+        <p><strong>分析师:</strong> {{ analyst_name | default('系统自动生成') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>📊 1. 设备基本信息</h2>
+        <table class="data-table">
+            <tr>
+                <th>项目</th>
+                <th>数值</th>
+            </tr>
+            <tr>
+                <td>设备编号</td>
+                <td>{{ turbine_id | default('N/A') }}</td>
+            </tr>
+            <tr>
+                <td>设备位置</td>
+                <td>{{ location | default('未指定') }}</td>
+            </tr>
+            <tr>
+                <td>设备型号</td>
+                <td>{{ model | default('未指定') }}</td>
+            </tr>
+            <tr>
+                <td>测量点</td>
+                <td>{{ measurement_point | default('未指定') }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>📈 2. 振动数据分析</h2>
+        <table class="data-table">
+            <tr>
+                <th>参数</th>
+                <th>数值</th>
+                <th>单位</th>
+                <th>状态</th>
+            </tr>
+            <tr>
+                <td>RMS有效值</td>
+                <td>{{ rms_value | default('N/A') }}</td>
+                <td>mm/s</td>
+                <td>
+                    {% if rms_value %}
+                        {% if rms_value|float < 2.8 %}
+                            <span class="status-normal">✅ 正常</span>
+                        {% elif rms_value|float < 7.1 %}
+                            <span class="status-warning">⚠️ 注意</span>
+                        {% else %}
+                            <span class="status-danger">🚨 危险</span>
+                        {% endif %}
+                    {% else %}
+                        <span>未知</span>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>峰值</td>
+                <td>{{ peak_value | default('N/A') }}</td>
+                <td>mm/s</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>主频率</td>
+                <td>{{ main_frequency | default('N/A') }}</td>
+                <td>Hz</td>
+                <td>-</td>
+            </tr>
+            <tr>
+                <td>报警级别</td>
+                <td colspan="3">
+                    {% if alarm_level == 'normal' %}
+                        <span class="status-normal">✅ 正常</span>
+                    {% elif alarm_level == 'warning' %}
+                        <span class="status-warning">⚠️ 警告</span>
+                    {% elif alarm_level == 'danger' %}
+                        <span class="status-danger">🚨 危险</span>
+                    {% else %}
+                        <span>{{ alarm_level | default('未知') }}</span>
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+    </div>
+    
+    {% if charts %}
+    <div class="section">
+        <h2>📊 3. 图表分析</h2>
+        {% for chart in charts %}
+        <div class="chart-container">
+            <h3>{{ loop.index }}. {{ chart.title | default('图表 ' + loop.index|string) }}</h3>
+            <img src="data:image/png;base64,{{ chart.data }}" 
+                 alt="{{ chart.title }}" 
+                 style="max-width: 100%; height: auto; border: 1px solid #ddd;">
+            {% if chart.description %}
+                <p style="margin-top: 10px; color: #666; font-style: italic;">{{ chart.description }}</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="section">
+        <h2>📝 4. 分析结论</h2>
+        <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #6c757d;">
+            <p><strong>分析概述:</strong></p>
+            <p>{{ analysis_overview | default('暂无分析概述') }}</p>
+            
+            <p><strong>详细结论:</strong></p>
+            <p>{{ conclusion | default('暂无详细结论') }}</p>
+        </div>
+    </div>
+    
+    {% if recommendations %}
+    <div class="section">
+        <h2>💡 5. 建议措施</h2>
+        <div class="recommendations">
+            <ul>
+            {% for recommendation in recommendations %}
+                <li>{{ recommendation }}</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% else %}
+    <div class="section">
+        <h2>💡 5. 建议措施</h2>
+        <div class="recommendations">
+            <p>暂无具体建议，请根据实际情况制定相应措施。</p>
+        </div>
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS振动分析报告系统 v2.1.0</p>
+        <p><strong>技术支持:</strong> 振动分析专业团队</p>
+        <hr style="margin: 10px 0;">
+        <p style="font-size: 10px; color: #999;">本报告由系统自动生成，仅供参考。如有疑问请联系专业技术人员。</p>
+    </div>
+</body>
+</html>

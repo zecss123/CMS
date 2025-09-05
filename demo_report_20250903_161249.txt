@@ -1,0 +1,109 @@
+
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CMS振动分析报告 (离线演示版)</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f4f4f4;
+                }
+                .container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    border-bottom: 3px solid #007acc;
+                    padding-bottom: 10px;
+                }
+                h2 {
+                    color: #007acc;
+                    border-left: 4px solid #007acc;
+                    padding-left: 10px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #007acc;
+                    color: white;
+                }
+                .chart {
+                    text-align: center;
+                    margin: 20px 0;
+                }
+                .chart img {
+                    max-width: 100%;
+                    height: auto;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                .alarm {
+                    background-color: #ffebee;
+                }
+                .warning {
+                    background-color: #fff3e0;
+                }
+                .normal {
+                    background-color: #e8f5e8;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>CMS振动分析报告 (离线演示版)</h1>
+        <h2>基本信息</h2>
+<table>
+<tr><td><strong>风场名称</strong></td><td>离线演示风场</td></tr>
+<tr><td><strong>风机编号</strong></td><td>DEMO-001</td></tr>
+<tr><td><strong>测量日期</strong></td><td>2025-09-03</td></tr>
+<tr><td><strong>报告日期</strong></td><td>2025-09-03</td></tr>
+<tr><td><strong>测量人员</strong></td><td>CMS离线演示系统</td></tr>
+<tr><td><strong>设备状态</strong></td><td>运行中</td></tr>
+</table>
+<h2>执行摘要</h2>
+<p>本次振动分析基于模拟数据进行演示。设备当前状态为良好，风险等级为低。📊 振动水平在正常范围内
+📈 趋势分析显示设备性能稳定</p>
+<h2>测量结果</h2>
+<table>
+<tr><th>测点</th><th>RMS值</th><th>峰值</th><th>主频率(Hz)</th><th>报警级别</th></tr>
+<tr class="critical"><td>Speed</td><td>1526.001</td><td>1578.961</td><td>25.0</td><td>critical</td></tr>
+<tr class="normal"><td>Time_Domain_RMS_Value</td><td>0.512</td><td>0.710</td><td>25.0</td><td>normal</td></tr>
+<tr class="critical"><td>Time_Domain_10_5000Hz_Acceleration_RMS</td><td>1.953</td><td>3.280</td><td>25.0</td><td>critical</td></tr>
+</table>
+<h2>分析图表</h2>
+<div class="chart">
+<h3>振动趋势图</h3>
+<img src="data:image/png;base64,CvCfk4gg5oyv5Yqo5YiG5p6Q5Zu+6KGoICjmqKHmi58pCj09PT09PT09PT09PT09PT09PT0K5Yy65Z+fOiBBMDgK6aOO5Zy6OiAxMDAzCuS9jee9rjogOArmtYvngrk6IEFJX0NNUzAyNArnibnlvoE6IFRpbWVfRG9tYWluX1JNU19WYWx1ZQrml7bpl7TojIPlm7Q6IDIwMjUtMDktMDMgMTU6MTI6NDQgfiAyMDI1LTA5LTAzIDE2OjEyOjQ0Cgrlm77ooajnsbvlnos6IOaXtuWfn1JNU+WAvOi2i+WKv+WbvgrnlJ/miJDml7bpl7Q6IDIwMjUtMDktMDMgMTY6MTI6NDQKCuazqOaEjzog6L+Z5piv5qih5ouf5Zu+6KGo5paH5Lu277yM5a6e6ZmF57O757uf5Lya55Sf5oiQUE5H5qC85byP55qE5Y+v6KeG5YyW5Zu+6KGo44CCCg==" alt="振动趋势图">
+</div>
+<h2>分析结论</h2>
+<p>📊 振动水平在正常范围内
+📈 趋势分析显示设备性能稳定</p>
+<h2>建议措施</h2>
+<ol>
+<li>继续按计划进行常规维护</li>
+<li>保持当前监测频率</li>
+</ol>
+
+            </div>
+        </body>
+        </html>
+        

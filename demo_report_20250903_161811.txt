@@ -1,0 +1,98 @@
+
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CMS振动分析报告 (离线演示版)</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f4f4f4;
+                }
+                .container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    border-bottom: 3px solid #007acc;
+                    padding-bottom: 10px;
+                }
+                h2 {
+                    color: #007acc;
+                    border-left: 4px solid #007acc;
+                    padding-left: 10px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #007acc;
+                    color: white;
+                }
+                .chart {
+                    text-align: center;
+                    margin: 20px 0;
+                }
+                .chart img {
+                    max-width: 100%;
+                    height: auto;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                .alarm {
+                    background-color: #ffebee;
+                }
+                .warning {
+                    background-color: #fff3e0;
+                }
+                .normal {
+                    background-color: #e8f5e8;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>CMS振动分析报告 (离线演示版)</h1>
+        <h2>基本信息</h2>
+<table>
+<tr><td><strong>风场名称</strong></td><td>离线演示风场</td></tr>
+<tr><td><strong>风机编号</strong></td><td>DEMO-001</td></tr>
+<tr><td><strong>测量日期</strong></td><td>2025-09-03</td></tr>
+<tr><td><strong>报告日期</strong></td><td>2025-09-03</td></tr>
+<tr><td><strong>测量人员</strong></td><td>CMS离线演示系统</td></tr>
+<tr><td><strong>设备状态</strong></td><td>运行中</td></tr>
+</table>
+<h2>执行摘要</h2>
+<p>本次振动分析基于模拟数据进行演示。设备当前状态为良好，风险等级为低。模型分析失败: HTTPConnectionPool(host='172.16.253.39', port=80): Max retries exceeded with url: /api/model/services/681c0f2e016a0cd2dd73295f (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7ff18d89d640>, 'Connection to 172.16.253.39 timed out. (connect timeout=100)'))</p>
+<h2>测量结果</h2>
+<table>
+<tr><th>测点</th><th>RMS值</th><th>峰值</th><th>主频率(Hz)</th><th>报警级别</th></tr>
+</table>
+<h2>分析图表</h2>
+<h2>分析结论</h2>
+<p>模型分析失败: HTTPConnectionPool(host='172.16.253.39', port=80): Max retries exceeded with url: /api/model/services/681c0f2e016a0cd2dd73295f (Caused by ConnectTimeoutError(<urllib3.connection.HTTPConnection object at 0x7ff18d89d640>, 'Connection to 172.16.253.39 timed out. (connect timeout=100)'))</p>
+<h2>建议措施</h2>
+<ol>
+</ol>
+
+            </div>
+        </body>
+        </html>
+        

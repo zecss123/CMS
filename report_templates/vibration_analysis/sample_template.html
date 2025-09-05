@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('振动分析报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #2c5aa0;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #2c5aa0;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #2c5aa0;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #2c5aa0;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #2c5aa0;
+            color: white;
+        }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .status-good { color: #28a745; font-weight: bold; }
+        .status-warning { color: #ffc107; font-weight: bold; }
+        .status-danger { color: #dc3545; font-weight: bold; }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('振动分析报告') }}</h1>
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>设备型号:</strong> {{ equipment_model | default('未指定') }}</p>
+        <p><strong>分析日期:</strong> {{ analysis_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('VA-' + analysis_date) }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>1. 执行摘要</h2>
+        <p>{{ executive_summary | default('本次振动分析针对' + equipment_name + '进行了全面检测，主要评估设备的运行状态和潜在问题。') }}</p>
+        <p><strong>设备健康状态:</strong> 
+            <span class="{% if health_status == '良好' %}status-good{% elif health_status == '警告' %}status-warning{% else %}status-danger{% endif %}">
+                {{ health_status | default('待评估') }}
+            </span>
+        </p>
+    </div>
+    
+    <div class="section">
+        <h2>2. 设备基本信息</h2>
+        <table class="data-table">
+            <tr><th>项目</th><th>信息</th></tr>
+            <tr><td>设备名称</td><td>{{ equipment_name | default('未指定') }}</td></tr>
+            <tr><td>设备型号</td><td>{{ equipment_model | default('未指定') }}</td></tr>
+            <tr><td>安装位置</td><td>{{ location | default('未指定') }}</td></tr>
+            <tr><td>运行状态</td><td>{{ operating_status | default('未指定') }}</td></tr>
+            <tr><td>额定转速</td><td>{{ rated_speed | default('N/A') }} RPM</td></tr>
+            <tr><td>测量时间</td><td>{{ measurement_time | default('未指定') }}</td></tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>3. 振动测量数据</h2>
+        <table class="data-table">
+            <tr><th>测量参数</th><th>数值</th><th>单位</th><th>评估</th></tr>
+            <tr>
+                <td>总体振动值</td>
+                <td>{{ overall_vibration | default('N/A') }}</td>
+                <td>mm/s</td>
+                <td><span class="{% if overall_vibration_status == '正常' %}status-good{% elif overall_vibration_status == '注意' %}status-warning{% else %}status-danger{% endif %}">{{ overall_vibration_status | default('待评估') }}</span></td>
+            </tr>
+            <tr>
+                <td>峰值频率</td>
+                <td>{{ peak_frequency | default('N/A') }}</td>
+                <td>Hz</td>
+                <td>{{ peak_frequency_note | default('-') }}</td>
+            </tr>
+            <tr>
+                <td>振动烈度</td>
+                <td>{{ vibration_severity | default('N/A') }}</td>
+                <td>-</td>
+                <td>{{ vibration_severity_note | default('-') }}</td>
+            </tr>
+        </table>
+        
+        <p><strong>测量条件:</strong></p>
+        <ul>
+            <li>采样频率: {{ sampling_frequency | default('N/A') }} Hz</li>
+            <li>测量时长: {{ measurement_duration | default('N/A') }}</li>
+            <li>环境温度: {{ temperature | default('N/A') }}°C</li>
+            <li>测量点数量: {{ measurement_points | default('N/A') }}</li>
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>4. 频谱分析</h2>
+        {% if frequency_analysis_chart %}
+        <div class="chart-container">
+            <h3>频谱分析图</h3>
+            <img src="data:image/png;base64,{{ frequency_analysis_chart }}" alt="频谱分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <p><strong>主要频率成分:</strong></p>
+        <ul>
+        {% for component in frequency_components | default([]) %}
+            <li>{{ component.frequency }}Hz - {{ component.amplitude }} ({{ component.description }})</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>异常频率识别:</strong></p>
+        <p>{{ abnormal_frequencies | default('未发现明显异常频率') }}</p>
+    </div>
+    
+    {% if trend_analysis %}
+    <div class="section">
+        <h2>5. 趋势分析</h2>
+        {% if trend_chart %}
+        <div class="chart-container">
+            <h3>历史趋势图</h3>
+            <img src="data:image/png;base64,{{ trend_chart }}" alt="趋势分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        <p>{{ trend_conclusions | default('暂无趋势分析数据') }}</p>
+    </div>
+    {% endif %}
+    
+    <div class="section">
+        <h2>6. 诊断结论</h2>
+        <p><strong>设备健康状态:</strong> 
+            <span class="{% if health_status == '良好' %}status-good{% elif health_status == '警告' %}status-warning{% else %}status-danger{% endif %}">
+                {{ health_status | default('待评估') }}
+            </span>
+        </p>
+        
+        <p><strong>主要问题识别:</strong></p>
+        <ul>
+        {% for issue in identified_issues | default([]) %}
+            <li>{{ issue }}</li>
+        {% else %}
+            <li>未发现明显问题</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>风险等级:</strong> 
+            <span class="{% if risk_level == '低' %}status-good{% elif risk_level == '中' %}status-warning{% else %}status-danger{% endif %}">
+                {{ risk_level | default('待评估') }}
+            </span>
+        </p>
+        
+        <p><strong>诊断置信度:</strong> {{ confidence_level | default('N/A') }}%</p>
+    </div>
+    
+    <div class="section">
+        <h2>7. 建议措施</h2>
+        <p><strong>即时行动:</strong></p>
+        <ul>
+        {% for action in immediate_actions | default([]) %}
+            <li>{{ action }}</li>
+        {% else %}
+            <li>继续正常运行，保持监测</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>计划维护:</strong></p>
+        <ul>
+        {% for maintenance in planned_maintenance | default([]) %}
+            <li>{{ maintenance }}</li>
+        {% else %}
+            <li>按计划进行常规维护</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>监测建议:</strong></p>
+        <ul>
+        {% for recommendation in monitoring_recommendations | default([]) %}
+            <li>{{ recommendation }}</li>
+        {% else %}
+            <li>继续定期振动监测</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>下次检测时间:</strong> {{ next_inspection_date | default('建议1个月后') }}</p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>分析师:</strong> {{ analyst_name | default('CMS系统') }}</p>
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS振动分析报告系统 v2.1.0</p>
+    </div>
+</body>
+</html>

@@ -1,0 +1,286 @@
+# CMS振动分析系统统一配置文件
+# 所有可自定义的设置都在这个文件中进行配置
+
+# ==================== 模型配置 ====================
+model:
+  # 模型类型: "openai" | "local" | "deepseek_api" | "custom"
+  type: "local"
+  
+  # OpenAI配置 (当type为"openai"时使用)
+  openai:
+    api_key: "sk-jietr0JnMJyFu8JHE4F6268dA5Bb4fF7Bd2122D388374738"
+    base_url: "https://oneapi.xty.app/v1"  # 可修改为其他兼容的API端点
+    model_name: "gpt-3.5-turbo"
+    max_tokens: 4096
+    temperature: 0.7
+    timeout: 30
+  
+  # 本地模型配置 (当type为"local"时使用)
+  local:
+    model_name: "deepseek-7b"
+    model_path: "/root/autodl-tmp/models/deepseek-7b"  # 本地模型路径
+    max_length: 4096
+    temperature: 0.7
+    top_p: 0.9
+    device: "auto"  # auto, cuda, cpu
+    load_in_8bit: false  # 是否使用8bit量化
+    load_in_4bit: false  # 是否使用4bit量化
+  
+  # DeepSeek API配置 (当type为"deepseek_api"时使用)
+  deepseek_api:
+    api_key: "sk-a2590db6f1334022983b08ecf157e6b5"
+    base_url: "https://api.deepseek.com/v1"
+    model_name: "deepseek-chat"
+    max_tokens: 4096
+    temperature: 0.7
+  
+  # 自定义模型配置 (当type为"custom"时使用)
+  custom:
+    api_key: "your-custom-api-key"
+    base_url: "http://localhost:8000/v1"  # 自定义API端点
+    model_name: "custom-model"
+    max_tokens: 4096
+    temperature: 0.7
+    headers:  # 自定义请求头
+      Authorization: "Bearer your-token"
+      User-Agent: "CMS-RAG-System"
+
+# ==================== 嵌入模型配置 ====================
+embedding:
+  # 嵌入模型类型: "huggingface" | "openai" | "local"
+  type: "huggingface"
+  
+  # HuggingFace模型配置
+  huggingface:
+    model_name: "sentence-transformers/all-MiniLM-L6-v2"
+    device: "auto"
+    cache_dir: "/root/autodl-tmp/models/embeddings"
+    local_files_only: true  # 强制使用本地文件，避免网络连接问题
+    fallback_to_simple: true  # 如果本地模型不存在，使用简单文本嵌入
+  
+  # OpenAI嵌入配置
+  openai:
+    api_key: "your-openai-api-key-here"
+    model_name: "text-embedding-ada-002"
+  
+  # 本地嵌入模型配置
+  local:
+    model_path: "/path/to/local/embedding/model"
+    device: "auto"
+
+# ==================== 向量数据库配置 ====================
+vector_db:
+  type: "chroma"  # chroma, faiss, pinecone
+  persist_directory: "./data/vector_db"
+  collection_name: "cms_vibration_knowledge"
+  chunk_size: 500
+  chunk_overlap: 50
+  max_results: 10
+
+# ==================== 知识库配置 ====================
+knowledge:
+  # 知识库存储路径
+  embeddings_path: "./data/knowledge/embeddings"
+  metadata_path: "./data/knowledge/metadata"
+  
+  # 文档处理配置
+  document_processing:
+    chunk_size: 500
+    chunk_overlap: 50
+    supported_formats: [".pdf", ".docx", ".txt", ".md"]
+  
+  # 检索配置
+  retrieval:
+    top_k: 5
+    similarity_threshold: 0.7
+    rerank: false
+
+# ==================== 数据库配置 ====================
+database:
+  # 数据库类型: "sqlite" | "postgresql" | "mysql"
+  type: "sqlite"
+  
+  # SQLite配置 (开发环境推荐)
+  sqlite:
+    path: "./data/cms_data.db"
+  
+  # PostgreSQL配置 (生产环境推荐)
+  postgresql:
+    host: "localhost"
+    port: 5432
+    database: "cms_vibration"
+    username: "cms_user"
+    password: "your-password"
+    pool_size: 10
+    max_overflow: 20
+  
+  # MySQL配置
+  mysql:
+    host: "localhost"
+    port: 3306
+    database: "cms_vibration"
+    username: "cms_user"
+    password: "your-password"
+    charset: "utf8mb4"
+
+# ==================== 外部API配置 ====================
+external_api:
+  # 是否启用外部API调用
+  enabled: false
+  
+  # CMS系统API配置
+  cms_api:
+    base_url: "https://api.cms-system.com"
+    api_key: "your-cms-api-key"
+    timeout: 30
+    retry_times: 3
+    endpoints:
+      trend_analysis: "/api/v1/analysis/trend"
+      vibration_data: "/api/v1/data/vibration"
+      chart_generation: "/api/v1/charts/generate"
+  
+  # 第三方数据源API
+  data_source:
+    base_url: "https://api.windfarm-data.com"
+    api_key: "your-data-api-key"
+    timeout: 30
+
+# ==================== Streamlit界面配置 ====================
+streamlit:
+  # 是否启用Streamlit界面
+  enabled: true
+  
+  # 界面配置
+  page_title: "CMS振动分析报告系统"
+  page_icon: "🔧"
+  layout: "wide"
+  initial_sidebar_state: "expanded"
+  
+  # 服务器配置
+  server:
+    port: 8501
+    host: "0.0.0.0"
+    max_upload_size: 200  # MB
+  
+  # 功能开关
+  features:
+    chat_interface: true
+    file_upload: true
+    report_download: true
+    data_visualization: true
+
+# ==================== 系统配置 ====================
+system:
+  # 项目根目录 (相对路径或绝对路径)
+  project_root: "./"
+  
+  # 数据目录
+  data_dir: "./data"
+  
+  # 输出目录
+  output_dir: "./output"
+  
+  # 日志配置
+  logging:
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+    format: "{time:YYYY-MM-DD HH:mm:ss} | {level} | {name}:{function}:{line} - {message}"
+    rotation: "10 MB"
+    retention: "7 days"
+    log_file: "./logs/cms_rag.log"
+  
+  # 缓存配置
+  cache:
+    enabled: true
+    type: "memory"  # memory, redis, file
+    ttl: 3600  # 缓存过期时间(秒)
+    max_size: 1000  # 最大缓存条目数
+  
+  # Redis配置 (当cache.type为"redis"时使用)
+  redis:
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: null
+
+# ==================== 业务配置 ====================
+business:
+  # 风场配置
+  wind_farms:
+    "华能风场A":
+      turbines: ["A01", "A02", "A03", "A04", "A05"]
+      location: "内蒙古"
+      capacity: "2.0MW"
+    "大唐风场B":
+      turbines: ["B01", "B02", "B03", "B04", "B05"]
+      location: "新疆"
+      capacity: "2.5MW"
+    "国电风场C":
+      turbines: ["C01", "C02", "C03", "C04", "C05"]
+      location: "甘肃"
+      capacity: "3.0MW"
+  
+  # CMS测点配置
+  measurement_points:
+    - "1X水平振动"
+    - "1Y垂直振动"
+    - "2X水平振动"
+    - "2Y垂直振动"
+    - "3X水平振动"
+    - "3Y垂直振动"
+  
+  # 振动数据配置
+  vibration:
+    frequency_range: [0, 1000]  # Hz
+    sampling_rate: 2048  # Hz
+    data_length: 8192  # 数据点数
+    alarm_levels:
+      正常: [0, 2.5]
+      注意: [2.5, 6.3]
+      警告: [6.3, 10.0]
+      危险: [10.0, 999999]
+  
+  # 报告配置
+  report:
+    template_dir: "./data/templates"
+    formats: ["docx", "pdf"]
+    company_name: "风电设备状态监测中心"
+    report_title: "CMS振动分析报告"
+    logo_path: null  # 可选：公司logo路径
+    auto_save: true
+    include_charts: true
+    include_raw_data: false
+
+# ==================== 安全配置 ====================
+security:
+  # API密钥加密
+  encrypt_api_keys: false
+  encryption_key: "your-encryption-key-here"
+  
+  # 文件上传限制
+  file_upload:
+    max_size: 100  # MB
+    allowed_types: [".pdf", ".docx", ".txt", ".md", ".json"]
+    scan_virus: false
+  
+  # 访问控制
+  access_control:
+    enabled: false
+    allowed_ips: ["127.0.0.1", "localhost"]
+    rate_limit: 100  # 每分钟请求数限制
+
+# ==================== 开发配置 ====================
+development:
+  # 调试模式
+  debug: true
+  
+  # 模拟数据 (默认关闭，需要用户明确选择)
+  use_mock_data: false
+  
+  # 性能监控
+  profiling: false
+  
+  # 测试配置
+  testing:
+    enabled: true
+    test_data_dir: "./tests/data"
+    mock_external_apis: true

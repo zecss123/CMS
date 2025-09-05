@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('故障诊断报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #dc3545;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #dc3545;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #dc3545;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #dc3545;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #dc3545;
+            color: white;
+        }
+        .severity-critical { color: #dc3545; font-weight: bold; }
+        .severity-high { color: #fd7e14; font-weight: bold; }
+        .severity-medium { color: #ffc107; font-weight: bold; }
+        .severity-low { color: #28a745; font-weight: bold; }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .fault-highlight {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('故障诊断报告') }}</h1>
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>故障发生时间:</strong> {{ fault_occurrence_time | default('未指定') }}</p>
+        <p><strong>诊断日期:</strong> {{ diagnosis_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('FD-' + diagnosis_date) }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>1. 故障概要</h2>
+        <div class="fault-highlight">
+            <p><strong>故障类型:</strong> {{ fault_type | default('未分类') }}</p>
+            <p><strong>故障严重程度:</strong> 
+                <span class="{% if fault_severity == '严重' %}severity-critical{% elif fault_severity == '高' %}severity-high{% elif fault_severity == '中' %}severity-medium{% else %}severity-low{% endif %}">
+                    {{ fault_severity | default('待评估') }}
+                </span>
+            </p>
+            <p><strong>故障描述:</strong> {{ fault_description | default('设备出现异常，需要进一步诊断') }}</p>
+        </div>
+        
+        <p><strong>影响范围:</strong> {{ impact_scope | default('局部影响') }}</p>
+        <p><strong>停机时间:</strong> {{ downtime_duration | default('N/A') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>2. 症状分析</h2>
+        <p><strong>观察到的症状:</strong></p>
+        <ul>
+        {% for symptom in observed_symptoms | default([]) %}
+            <li>{{ symptom }}</li>
+        {% else %}
+            <li>{{ primary_symptom | default('设备运行异常') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>操作员报告:</strong></p>
+        <p>{{ operator_report | default('操作员报告设备运行出现异常声音和振动') }}</p>
+        
+        <p><strong>历史故障记录:</strong></p>
+        <p>{{ historical_faults | default('无相关历史故障记录') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>3. 诊断数据</h2>
+        <table class="data-table">
+            <tr><th>检测项目</th><th>测量值</th><th>正常范围</th><th>状态</th></tr>
+            <tr>
+                <td>振动水平</td>
+                <td>{{ vibration_level | default('N/A') }} mm/s</td>
+                <td>{{ vibration_normal_range | default('< 2.8') }} mm/s</td>
+                <td><span class="{% if vibration_status == '正常' %}severity-low{% elif vibration_status == '警告' %}severity-medium{% else %}severity-critical{% endif %}">{{ vibration_status | default('异常') }}</span></td>
+            </tr>
+            <tr>
+                <td>温度</td>
+                <td>{{ temperature | default('N/A') }}°C</td>
+                <td>{{ temperature_normal_range | default('< 80') }}°C</td>
+                <td><span class="{% if temperature_status == '正常' %}severity-low{% elif temperature_status == '警告' %}severity-medium{% else %}severity-critical{% endif %}">{{ temperature_status | default('异常') }}</span></td>
+            </tr>
+            <tr>
+                <td>电流</td>
+                <td>{{ current | default('N/A') }} A</td>
+                <td>{{ current_normal_range | default('额定值±10%') }}</td>
+                <td><span class="{% if current_status == '正常' %}severity-low{% elif current_status == '警告' %}severity-medium{% else %}severity-critical{% endif %}">{{ current_status | default('异常') }}</span></td>
+            </tr>
+        </table>
+        
+        <p><strong>检测时间:</strong> {{ inspection_time | default('未指定') }}</p>
+        <p><strong>检测人员:</strong> {{ inspector_name | default('系统自动检测') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>4. 根因分析</h2>
+        {% if diagnostic_chart %}
+        <div class="chart-container">
+            <h3>诊断分析图</h3>
+            <img src="data:image/png;base64,{{ diagnostic_chart }}" alt="诊断分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <p><strong>可能原因分析:</strong></p>
+        <ol>
+        {% for cause in possible_causes | default([]) %}
+            <li><strong>{{ cause.cause }}:</strong> {{ cause.probability }}% 可能性 - {{ cause.description }}</li>
+        {% else %}
+            <li><strong>{{ primary_cause | default('机械磨损') }}:</strong> {{ primary_cause_probability | default('80') }}% 可能性</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>最可能根因:</strong></p>
+        <div class="fault-highlight">
+            <p>{{ root_cause | default('基于当前数据分析，最可能的根因是机械部件磨损导致的异常振动') }}</p>
+        </div>
+    </div>
+    
+    <div class="section">
+        <h2>5. 验证测试</h2>
+        <p><strong>执行的测试:</strong></p>
+        <ul>
+        {% for test in verification_tests | default([]) %}
+            <li>{{ test.name }}: {{ test.result }} ({{ test.description }})</li>
+        {% else %}
+            <li>振动频谱分析: 确认异常频率成分</li>
+            <li>温度监测: 确认温升异常</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>测试结论:</strong></p>
+        <p>{{ test_conclusions | default('测试结果证实了初步诊断，确认存在机械故障') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>6. 故障影响评估</h2>
+        <table class="data-table">
+            <tr><th>影响方面</th><th>程度</th><th>说明</th></tr>
+            <tr>
+                <td>生产效率</td>
+                <td><span class="{% if production_impact == '无影响' %}severity-low{% elif production_impact == '轻微影响' %}severity-medium{% else %}severity-critical{% endif %}">{{ production_impact | default('中等影响') }}</span></td>
+                <td>{{ production_impact_desc | default('可能导致产能下降') }}</td>
+            </tr>
+            <tr>
+                <td>安全风险</td>
+                <td><span class="{% if safety_risk == '低' %}severity-low{% elif safety_risk == '中' %}severity-medium{% else %}severity-critical{% endif %}">{{ safety_risk | default('中') }}</span></td>
+                <td>{{ safety_risk_desc | default('存在设备损坏风险') }}</td>
+            </tr>
+            <tr>
+                <td>维修成本</td>
+                <td>{{ repair_cost | default('中等') }}</td>
+                <td>{{ repair_cost_desc | default('需要更换部分零件') }}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>7. 修复建议</h2>
+        <p><strong>紧急措施:</strong></p>
+        <ul>
+        {% for action in emergency_actions | default([]) %}
+            <li>{{ action }}</li>
+        {% else %}
+            <li>立即停机检查</li>
+            <li>隔离故障设备</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>修复方案:</strong></p>
+        <ol>
+        {% for repair in repair_procedures | default([]) %}
+            <li>{{ repair.step }}: {{ repair.description }} (预计时间: {{ repair.duration }})</li>
+        {% else %}
+            <li>拆卸检查故障部件</li>
+            <li>更换磨损零件</li>
+            <li>重新装配和调试</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>所需资源:</strong></p>
+        <ul>
+        {% for resource in required_resources | default([]) %}
+            <li>{{ resource }}</li>
+        {% else %}
+            <li>维修工具和备件</li>
+            <li>专业技术人员</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>预计修复时间:</strong> {{ estimated_repair_time | default('4-8小时') }}</p>
+        <p><strong>预防措施:</strong> {{ prevention_measures | default('加强定期维护和监测') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>8. 跟踪计划</h2>
+        <p><strong>修复后验证:</strong></p>
+        <ul>
+        {% for verification in post_repair_verification | default([]) %}
+            <li>{{ verification }}</li>
+        {% else %}
+            <li>运行测试确认故障消除</li>
+            <li>振动和温度监测</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>监测计划:</strong></p>
+        <p>{{ monitoring_plan | default('修复后连续监测48小时，然后转入正常监测周期') }}</p>
+        
+        <p><strong>下次检查时间:</strong> {{ next_inspection | default('1周后') }}</p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>诊断工程师:</strong> {{ diagnosis_engineer | default('CMS系统') }}</p>
+        <p><strong>审核人员:</strong> {{ reviewer | default('系统管理员') }}</p>
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS故障诊断系统 v2.1.0</p>
+    </div>
+</body>
+</html>

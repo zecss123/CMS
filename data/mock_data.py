@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 import random
-from typing import Dict, List, Tuple, Any
+from typing import Dict, List, Tuple, Any, Optional
 import json
 
 from config.settings import CMS_CONFIG, WIND_FARM_CONFIG
@@ -131,7 +131,7 @@ class CMSDataGenerator:
         return "危险"
     
     def generate_measurement_data(self, wind_farm: str, turbine_id: str, 
-                                measurement_point: str, fault_type: str = None) -> Dict[str, Any]:
+                                measurement_point: str, fault_type: Optional[str] = None) -> Dict[str, Any]:
         """生成单个测点的完整数据"""
         # 随机选择故障类型（如果未指定）
         if fault_type is None:
@@ -169,6 +169,7 @@ class CMSDataGenerator:
             "frequency_features": frequency_features,
             "trend_analysis": trend_analysis,
             "time_series": signal.tolist()[:1000],  # 只保存部分时域数据
+            "sampling_rate": self.sampling_rate,  # 添加采样率
         }
     
     def _generate_frequency_description(self, features: Dict, fault_type: str) -> str:
@@ -218,7 +219,7 @@ class CMSDataGenerator:
         
         return turbine_data
     
-    def generate_farm_data(self, wind_farm: str, turbine_count: int = None) -> Dict[str, Any]:
+    def generate_farm_data(self, wind_farm: str, turbine_count: Optional[int] = None) -> Dict[str, Any]:
         """生成整个风场的数据"""
         if wind_farm not in WIND_FARM_CONFIG["farms"]:
             raise ValueError(f"未知风场: {wind_farm}")

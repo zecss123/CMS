@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('维护报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #28a745;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #28a745;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #28a745;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #28a745;
+            color: white;
+        }
+        .status-completed { color: #28a745; font-weight: bold; }
+        .status-pending { color: #ffc107; font-weight: bold; }
+        .status-cancelled { color: #dc3545; font-weight: bold; }
+        .maintenance-highlight {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('维护报告') }}</h1>
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>维护类型:</strong> {{ maintenance_type | default('预防性维护') }}</p>
+        <p><strong>维护日期:</strong> {{ maintenance_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('MR-' + maintenance_date) }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>1. 维护概述</h2>
+        <div class="maintenance-highlight">
+            <p><strong>维护目的:</strong> {{ maintenance_purpose | default('确保设备正常运行，预防潜在故障') }}</p>
+            <p><strong>维护范围:</strong> {{ maintenance_scope | default('全面检查和保养') }}</p>
+            <p><strong>完成状态:</strong> 
+                <span class="{% if completion_status == '已完成' %}status-completed{% elif completion_status == '进行中' %}status-pending{% else %}status-cancelled{% endif %}">
+                    {{ completion_status | default('已完成') }}
+                </span>
+            </p>
+        </div>
+        
+        <table class="data-table">
+            <tr><th>项目</th><th>详情</th></tr>
+            <tr><td>计划开始时间</td><td>{{ planned_start_time | default('未指定') }}</td></tr>
+            <tr><td>实际开始时间</td><td>{{ actual_start_time | default('未指定') }}</td></tr>
+            <tr><td>计划完成时间</td><td>{{ planned_end_time | default('未指定') }}</td></tr>
+            <tr><td>实际完成时间</td><td>{{ actual_end_time | default('未指定') }}</td></tr>
+            <tr><td>总耗时</td><td>{{ total_duration | default('N/A') }}</td></tr>
+            <tr><td>停机时间</td><td>{{ downtime_duration | default('N/A') }}</td></tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>2. 维护团队</h2>
+        <table class="data-table">
+            <tr><th>角色</th><th>姓名</th><th>工号</th><th>职责</th></tr>
+            {% for member in maintenance_team | default([]) %}
+            <tr>
+                <td>{{ member.role }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.employee_id }}</td>
+                <td>{{ member.responsibility }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_role | default('维护工程师') }}</td>
+                <td>{{ default_engineer | default('张工') }}</td>
+                <td>{{ default_employee_id | default('ENG001') }}</td>
+                <td>{{ default_responsibility | default('负责整体维护工作') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>外部支持:</strong> {{ external_support | default('无') }}</p>
+        <p><strong>安全负责人:</strong> {{ safety_officer | default('李安全') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>3. 维护活动</h2>
+        <table class="data-table">
+            <tr><th>序号</th><th>维护项目</th><th>计划时间</th><th>实际时间</th><th>状态</th><th>备注</th></tr>
+            {% for activity in maintenance_activities | default([]) %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ activity.task }}</td>
+                <td>{{ activity.planned_duration }}</td>
+                <td>{{ activity.actual_duration }}</td>
+                <td><span class="{% if activity.status == '已完成' %}status-completed{% elif activity.status == '进行中' %}status-pending{% else %}status-cancelled{% endif %}">{{ activity.status }}</span></td>
+                <td>{{ activity.notes | default('-') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>1</td>
+                <td>{{ default_task | default('设备清洁和润滑') }}</td>
+                <td>{{ default_planned_duration | default('2小时') }}</td>
+                <td>{{ default_actual_duration | default('1.5小时') }}</td>
+                <td><span class="status-completed">已完成</span></td>
+                <td>{{ default_notes | default('正常完成') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>特殊程序:</strong></p>
+        <ul>
+        {% for procedure in special_procedures | default([]) %}
+            <li>{{ procedure }}</li>
+        {% else %}
+            <li>{{ default_procedure | default('按标准操作程序执行') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>4. 检查结果</h2>
+        <table class="data-table">
+            <tr><th>检查项目</th><th>标准要求</th><th>实际状态</th><th>结果</th><th>处理措施</th></tr>
+            {% for inspection in inspection_results | default([]) %}
+            <tr>
+                <td>{{ inspection.item }}</td>
+                <td>{{ inspection.standard }}</td>
+                <td>{{ inspection.actual_condition }}</td>
+                <td><span class="{% if inspection.result == '合格' %}status-completed{% elif inspection.result == '注意' %}status-pending{% else %}status-cancelled{% endif %}">{{ inspection.result }}</span></td>
+                <td>{{ inspection.action }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_inspection_item | default('振动水平') }}</td>
+                <td>{{ default_standard | default('< 2.8 mm/s') }}</td>
+                <td>{{ default_actual_condition | default('2.1 mm/s') }}</td>
+                <td><span class="status-completed">合格</span></td>
+                <td>{{ default_action | default('无需处理') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>总体评估:</strong></p>
+        <p>{{ overall_assessment | default('设备状态良好，所有检查项目均符合要求') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>5. 更换部件</h2>
+        {% if replaced_parts | length > 0 %}
+        <table class="data-table">
+            <tr><th>部件名称</th><th>部件编号</th><th>更换原因</th><th>新部件编号</th><th>供应商</th><th>成本</th></tr>
+            {% for part in replaced_parts %}
+            <tr>
+                <td>{{ part.name }}</td>
+                <td>{{ part.old_part_number }}</td>
+                <td>{{ part.replacement_reason }}</td>
+                <td>{{ part.new_part_number }}</td>
+                <td>{{ part.supplier }}</td>
+                <td>{{ part.cost }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>{{ no_parts_message | default('本次维护未更换任何部件') }}</p>
+        {% endif %}
+        
+        <p><strong>废料处理:</strong> {{ waste_disposal | default('按环保要求处理') }}</p>
+        <p><strong>库存更新:</strong> {{ inventory_update | default('已更新库存记录') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>6. 测试验证</h2>
+        <p><strong>功能测试:</strong></p>
+        <ul>
+        {% for test in functional_tests | default([]) %}
+            <li>{{ test.name }}: {{ test.result }} - {{ test.description }}</li>
+        {% else %}
+            <li>{{ default_test | default('设备启动测试: 通过 - 设备正常启动运行') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>性能验证:</strong></p>
+        {% if performance_chart %}
+        <div class="chart-container">
+            <h3>维护前后性能对比</h3>
+            <img src="data:image/png;base64,{{ performance_chart }}" alt="性能对比图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <table class="data-table">
+            <tr><th>性能指标</th><th>维护前</th><th>维护后</th><th>改善程度</th></tr>
+            {% for metric in performance_metrics | default([]) %}
+            <tr>
+                <td>{{ metric.name }}</td>
+                <td>{{ metric.before }}</td>
+                <td>{{ metric.after }}</td>
+                <td>{{ metric.improvement }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_metric | default('振动水平') }}</td>
+                <td>{{ default_before | default('2.5 mm/s') }}</td>
+                <td>{{ default_after | default('1.8 mm/s') }}</td>
+                <td>{{ default_improvement | default('改善28%') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>7. 问题与解决</h2>
+        {% if encountered_issues | length > 0 %}
+        <table class="data-table">
+            <tr><th>问题描述</th><th>发现时间</th><th>严重程度</th><th>解决方案</th><th>状态</th></tr>
+            {% for issue in encountered_issues %}
+            <tr>
+                <td>{{ issue.description }}</td>
+                <td>{{ issue.discovery_time }}</td>
+                <td>{{ issue.severity }}</td>
+                <td>{{ issue.solution }}</td>
+                <td><span class="{% if issue.status == '已解决' %}status-completed{% elif issue.status == '处理中' %}status-pending{% else %}status-cancelled{% endif %}">{{ issue.status }}</span></td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>{{ no_issues_message | default('维护过程中未遇到重大问题') }}</p>
+        {% endif %}
+        
+        <p><strong>经验教训:</strong></p>
+        <ul>
+        {% for lesson in lessons_learned | default([]) %}
+            <li>{{ lesson }}</li>
+        {% else %}
+            <li>{{ default_lesson | default('维护计划执行顺利，建议保持当前维护频率') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>8. 成本分析</h2>
+        <table class="data-table">
+            <tr><th>成本类型</th><th>预算</th><th>实际支出</th><th>差异</th><th>说明</th></tr>
+            <tr>
+                <td>人工成本</td>
+                <td>{{ labor_budget | default('N/A') }}</td>
+                <td>{{ labor_actual | default('N/A') }}</td>
+                <td>{{ labor_variance | default('N/A') }}</td>
+                <td>{{ labor_notes | default('-') }}</td>
+            </tr>
+            <tr>
+                <td>材料成本</td>
+                <td>{{ material_budget | default('N/A') }}</td>
+                <td>{{ material_actual | default('N/A') }}</td>
+                <td>{{ material_variance | default('N/A') }}</td>
+                <td>{{ material_notes | default('-') }}</td>
+            </tr>
+            <tr>
+                <td>外包服务</td>
+                <td>{{ service_budget | default('N/A') }}</td>
+                <td>{{ service_actual | default('N/A') }}</td>
+                <td>{{ service_variance | default('N/A') }}</td>
+                <td>{{ service_notes | default('-') }}</td>
+            </tr>
+            <tr>
+                <td><strong>总计</strong></td>
+                <td><strong>{{ total_budget | default('N/A') }}</strong></td>
+                <td><strong>{{ total_actual | default('N/A') }}</strong></td>
+                <td><strong>{{ total_variance | default('N/A') }}</strong></td>
+                <td>{{ total_notes | default('-') }}</td>
+            </tr>
+        </table>
+        
+        <p><strong>成本效益分析:</strong></p>
+        <p>{{ cost_benefit_analysis | default('本次维护投入合理，预期可延长设备使用寿命') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>9. 后续计划</h2>
+        <p><strong>下次维护计划:</strong></p>
+        <table class="data-table">
+            <tr><th>维护类型</th><th>计划日期</th><th>主要内容</th><th>负责人</th></tr>
+            {% for plan in future_maintenance | default([]) %}
+            <tr>
+                <td>{{ plan.type }}</td>
+                <td>{{ plan.scheduled_date }}</td>
+                <td>{{ plan.content }}</td>
+                <td>{{ plan.responsible_person }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_future_type | default('预防性维护') }}</td>
+                <td>{{ default_future_date | default('3个月后') }}</td>
+                <td>{{ default_future_content | default('常规检查和保养') }}</td>
+                <td>{{ default_future_responsible | default('维护团队') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>监测重点:</strong></p>
+        <ul>
+        {% for focus in monitoring_focus | default([]) %}
+            <li>{{ focus }}</li>
+        {% else %}
+            <li>{{ default_focus | default('持续监测振动和温度变化') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>改进建议:</strong></p>
+        <ul>
+        {% for improvement in improvement_suggestions | default([]) %}
+            <li>{{ improvement }}</li>
+        {% else %}
+            <li>{{ default_improvement | default('考虑采用预测性维护技术') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <p><strong>维护负责人:</strong> {{ maintenance_supervisor | default('维护主管') }}</p>
+        <p><strong>质量检查员:</strong> {{ quality_inspector | default('质检员') }}</p>
+        <p><strong>报告编制:</strong> {{ report_author | default('CMS系统') }}</p>
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS维护管理系统 v2.1.0</p>
+    </div>
+</body>
+</html>

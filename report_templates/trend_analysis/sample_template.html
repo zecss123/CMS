@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('趋势分析报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #17a2b8;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #17a2b8;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #17a2b8;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #17a2b8;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #17a2b8;
+            color: white;
+        }
+        .trend-improving { color: #28a745; font-weight: bold; }
+        .trend-stable { color: #6c757d; font-weight: bold; }
+        .trend-degrading { color: #dc3545; font-weight: bold; }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .prediction-box {
+            background-color: #e7f3ff;
+            border: 1px solid #b3d9ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('趋势分析报告') }}</h1>
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>分析周期:</strong> {{ analysis_period | default('未指定') }}</p>
+        <p><strong>报告日期:</strong> {{ report_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('TA-' + report_date) }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>1. 分析概述</h2>
+        <p>{{ analysis_overview | default('本报告基于' + analysis_period + '期间的监测数据，对' + equipment_name + '的运行趋势进行全面分析') }}</p>
+        
+        <table class="data-table">
+            <tr><th>分析项目</th><th>详情</th></tr>
+            <tr><td>数据来源</td><td>{{ data_source | default('CMS振动监测系统') }}</td></tr>
+            <tr><td>数据点数量</td><td>{{ data_points_count | default('N/A') }}</td></tr>
+            <tr><td>采样频率</td><td>{{ sampling_frequency | default('每小时') }}</td></tr>
+            <tr><td>分析算法</td><td>{{ analysis_algorithm | default('时间序列分析') }}</td></tr>
+            <tr><td>置信度</td><td>{{ confidence_level | default('95') }}%</td></tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>2. 数据汇总</h2>
+        <table class="data-table">
+            <tr><th>监测参数</th><th>平均值</th><th>最大值</th><th>最小值</th><th>标准差</th><th>趋势</th></tr>
+            <tr>
+                <td>总体振动</td>
+                <td>{{ vibration_avg | default('N/A') }} mm/s</td>
+                <td>{{ vibration_max | default('N/A') }} mm/s</td>
+                <td>{{ vibration_min | default('N/A') }} mm/s</td>
+                <td>{{ vibration_std | default('N/A') }}</td>
+                <td><span class="{% if vibration_trend == '改善' %}trend-improving{% elif vibration_trend == '稳定' %}trend-stable{% else %}trend-degrading{% endif %}">{{ vibration_trend | default('稳定') }}</span></td>
+            </tr>
+            <tr>
+                <td>温度</td>
+                <td>{{ temperature_avg | default('N/A') }}°C</td>
+                <td>{{ temperature_max | default('N/A') }}°C</td>
+                <td>{{ temperature_min | default('N/A') }}°C</td>
+                <td>{{ temperature_std | default('N/A') }}</td>
+                <td><span class="{% if temperature_trend == '改善' %}trend-improving{% elif temperature_trend == '稳定' %}trend-stable{% else %}trend-degrading{% endif %}">{{ temperature_trend | default('稳定') }}</span></td>
+            </tr>
+            <tr>
+                <td>转速</td>
+                <td>{{ speed_avg | default('N/A') }} RPM</td>
+                <td>{{ speed_max | default('N/A') }} RPM</td>
+                <td>{{ speed_min | default('N/A') }} RPM</td>
+                <td>{{ speed_std | default('N/A') }}</td>
+                <td><span class="{% if speed_trend == '改善' %}trend-improving{% elif speed_trend == '稳定' %}trend-stable{% else %}trend-degrading{% endif %}">{{ speed_trend | default('稳定') }}</span></td>
+            </tr>
+        </table>
+    </div>
+    
+    <div class="section">
+        <h2>3. 趋势可视化</h2>
+        {% if main_trend_chart %}
+        <div class="chart-container">
+            <h3>主要参数趋势图</h3>
+            <img src="data:image/png;base64,{{ main_trend_chart }}" alt="主要参数趋势图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        {% if correlation_chart %}
+        <div class="chart-container">
+            <h3>参数相关性分析</h3>
+            <img src="data:image/png;base64,{{ correlation_chart }}" alt="相关性分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <p><strong>关键观察:</strong></p>
+        <ul>
+        {% for observation in key_observations | default([]) %}
+            <li>{{ observation }}</li>
+        {% else %}
+            <li>{{ default_observation | default('设备运行参数在监测期间保持相对稳定') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>4. 异常检测</h2>
+        <p><strong>检测到的异常事件:</strong></p>
+        {% if anomalies | length > 0 %}
+        <table class="data-table">
+            <tr><th>时间</th><th>参数</th><th>异常值</th><th>偏离程度</th><th>可能原因</th></tr>
+            {% for anomaly in anomalies %}
+            <tr>
+                <td>{{ anomaly.timestamp }}</td>
+                <td>{{ anomaly.parameter }}</td>
+                <td>{{ anomaly.value }}</td>
+                <td>{{ anomaly.deviation }}</td>
+                <td>{{ anomaly.possible_cause }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>{{ no_anomalies_message | default('在分析期间未检测到显著异常') }}</p>
+        {% endif %}
+        
+        <p><strong>异常模式分析:</strong></p>
+        <p>{{ anomaly_pattern_analysis | default('异常事件呈现随机分布，无明显周期性模式') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>5. 周期性分析</h2>
+        {% if periodicity_chart %}
+        <div class="chart-container">
+            <h3>周期性分析图</h3>
+            <img src="data:image/png;base64,{{ periodicity_chart }}" alt="周期性分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <p><strong>识别的周期模式:</strong></p>
+        <ul>
+        {% for pattern in periodic_patterns | default([]) %}
+            <li><strong>{{ pattern.type }}:</strong> {{ pattern.period }} - {{ pattern.description }}</li>
+        {% else %}
+            <li>{{ default_pattern | default('未发现明显的周期性模式') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>季节性影响:</strong></p>
+        <p>{{ seasonal_effects | default('监测参数未显示明显的季节性变化') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>6. 预测分析</h2>
+        <div class="prediction-box">
+            <h3>未来趋势预测</h3>
+            {% if prediction_chart %}
+            <div class="chart-container">
+                <img src="data:image/png;base64,{{ prediction_chart }}" alt="预测趋势图" style="max-width: 100%;">
+            </div>
+            {% endif %}
+            
+            <p><strong>预测模型:</strong> {{ prediction_model | default('ARIMA时间序列模型') }}</p>
+            <p><strong>预测周期:</strong> {{ prediction_horizon | default('未来30天') }}</p>
+            <p><strong>模型准确度:</strong> {{ model_accuracy | default('85') }}%</p>
+        </div>
+        
+        <p><strong>关键预测结果:</strong></p>
+        <ul>
+        {% for prediction in key_predictions | default([]) %}
+            <li>{{ prediction }}</li>
+        {% else %}
+            <li>{{ default_prediction | default('预计设备将继续保持当前运行状态') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>7. 风险评估</h2>
+        <table class="data-table">
+            <tr><th>风险类型</th><th>概率</th><th>影响程度</th><th>风险等级</th><th>预计时间</th></tr>
+            {% for risk in identified_risks | default([]) %}
+            <tr>
+                <td>{{ risk.type }}</td>
+                <td>{{ risk.probability }}%</td>
+                <td>{{ risk.impact }}</td>
+                <td><span class="{% if risk.level == '低' %}trend-improving{% elif risk.level == '中' %}trend-stable{% else %}trend-degrading{% endif %}">{{ risk.level }}</span></td>
+                <td>{{ risk.timeframe }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_risk_type | default('设备退化') }}</td>
+                <td>{{ default_risk_probability | default('20') }}%</td>
+                <td>{{ default_risk_impact | default('中等') }}</td>
+                <td><span class="trend-stable">{{ default_risk_level | default('低') }}</span></td>
+                <td>{{ default_risk_timeframe | default('6个月内') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>总体风险评估:</strong></p>
+        <p>{{ overall_risk_assessment | default('基于当前趋势分析，设备整体风险处于可控范围内') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>8. 维护建议</h2>
+        <p><strong>基于趋势的维护策略:</strong></p>
+        <ul>
+        {% for strategy in maintenance_strategies | default([]) %}
+            <li>{{ strategy }}</li>
+        {% else %}
+            <li>{{ default_strategy | default('继续执行预防性维护计划') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>优化建议:</strong></p>
+        <ol>
+        {% for optimization in optimization_recommendations | default([]) %}
+            <li>{{ optimization }}</li>
+        {% else %}
+            <li>{{ default_optimization | default('保持当前监测频率') }}</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>监测重点:</strong></p>
+        <p>{{ monitoring_focus | default('重点关注振动水平变化和温度异常') }}</p>
+        
+        <p><strong>下次分析时间:</strong> {{ next_analysis_date | default('1个月后') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>9. 结论与行动计划</h2>
+        <p><strong>主要结论:</strong></p>
+        <ul>
+        {% for conclusion in main_conclusions | default([]) %}
+            <li>{{ conclusion }}</li>
+        {% else %}
+            <li>{{ default_conclusion | default('设备运行趋势良好，建议继续监测') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>建议行动:</strong></p>
+        <ol>
+        {% for action in recommended_actions | default([]) %}
+            <li>{{ action.description }} (优先级: {{ action.priority }}, 时间框架: {{ action.timeframe }})</li>
+        {% else %}
+            <li>{{ default_action | default('继续按计划进行常规维护') }} (优先级: 中, 时间框架: 持续)</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>关键绩效指标:</strong></p>
+        <ul>
+        {% for kpi in key_performance_indicators | default([]) %}
+            <li>{{ kpi.name }}: {{ kpi.current_value }} (目标: {{ kpi.target_value }})</li>
+        {% else %}
+            <li>{{ default_kpi | default('设备可用性: 98%+ (目标: 95%+)') }}</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="footer">
+        <p><strong>分析师:</strong> {{ analyst_name | default('CMS系统') }}</p>
+        <p><strong>审核人员:</strong> {{ reviewer_name | default('系统管理员') }}</p>
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS趋势分析系统 v2.1.0</p>
+    </div>
+</body>
+</html>

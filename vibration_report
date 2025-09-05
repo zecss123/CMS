@@ -1,0 +1,77 @@
+
+        <!DOCTYPE html>
+        <html lang="zh-CN">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>CMS振动分析报告</title>
+            <style>
+                body {
+                    font-family: Arial, sans-serif;
+                    line-height: 1.6;
+                    margin: 0;
+                    padding: 20px;
+                    background-color: #f4f4f4;
+                }
+                .container {
+                    max-width: 1000px;
+                    margin: 0 auto;
+                    background-color: white;
+                    padding: 30px;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                }
+                h1 {
+                    color: #333;
+                    text-align: center;
+                    border-bottom: 3px solid #007acc;
+                    padding-bottom: 10px;
+                }
+                h2 {
+                    color: #007acc;
+                    border-left: 4px solid #007acc;
+                    padding-left: 10px;
+                }
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin: 20px 0;
+                }
+                th, td {
+                    border: 1px solid #ddd;
+                    padding: 12px;
+                    text-align: left;
+                }
+                th {
+                    background-color: #007acc;
+                    color: white;
+                }
+                .chart {
+                    text-align: center;
+                    margin: 20px 0;
+                }
+                .chart img {
+                    max-width: 100%;
+                    height: auto;
+                    border: 1px solid #ddd;
+                    border-radius: 5px;
+                }
+                .alarm {
+                    background-color: #ffebee;
+                }
+                .warning {
+                    background-color: #fff3e0;
+                }
+                .normal {
+                    background-color: #e8f5e8;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>CMS振动分析报告</h1>
+        
+            </div>
+        </body>
+        </html>
+        

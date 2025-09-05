@@ -13,6 +13,7 @@ from pathlib import Path
 from loguru import logger
 
 from config.settings import VECTOR_DB_CONFIG
+from config.config_loader import get_config
 import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 
@@ -56,12 +57,20 @@ class VectorStore:
     """向量数据库管理器"""
     
     def __init__(self):
+        # 获取配置
+        self.config = get_config()
+        self.embedding_config = self.config.get_embedding_config()
+        
         self.persist_directory = VECTOR_DB_CONFIG["persist_directory"]
         self.collection_name = VECTOR_DB_CONFIG["collection_name"]
-        self.embedding_model_name = VECTOR_DB_CONFIG["embedding_model"]
+        self.embedding_model_name = self.embedding_config.get('model_name', 'sentence-transformers/all-MiniLM-L6-v2')
+        self.cache_dir = self.embedding_config.get('cache_dir', '/root/autodl-tmp/models/embeddings')
+        self.local_files_only = self.embedding_config.get('local_files_only', True)
+        self.fallback_to_simple = self.embedding_config.get('fallback_to_simple', True)
         
         # 确保目录存在
         Path(self.persist_directory).mkdir(parents=True, exist_ok=True)
+        Path(self.cache_dir).mkdir(parents=True, exist_ok=True)
         
         # 初始化ChromaDB客户端
         self.client = chromadb.PersistentClient(
@@ -77,20 +86,38 @@ class VectorStore:
         self.collection = None
         
         logger.info(f"向量数据库初始化完成，存储路径: {self.persist_directory}")
+        logger.info(f"嵌入模型配置: {self.embedding_model_name}, 缓存目录: {self.cache_dir}")
     
     def _load_embedding_model(self):
         """加载嵌入模型"""
         if self.embedding_model is None:
             logger.info(f"尝试加载嵌入模型: {self.embedding_model_name}")
             try:
-                # 首先尝试加载本地缓存的模型
-                self.embedding_model = SentenceTransformer(self.embedding_model_name, local_files_only=True)
-                logger.info("嵌入模型加载成功（本地缓存）")
+                # 尝试加载SentenceTransformer模型
+                if self.local_files_only:
+                    # 强制使用本地文件
+                    self.embedding_model = SentenceTransformer(
+                        self.embedding_model_name, 
+                        cache_folder=self.cache_dir,
+                        local_files_only=True
+                    )
+                    logger.info("嵌入模型加载成功（本地缓存）")
+                else:
+                    # 允许从网络下载
+                    self.embedding_model = SentenceTransformer(
+                        self.embedding_model_name,
+                        cache_folder=self.cache_dir
+                    )
+                    logger.info("嵌入模型加载成功")
             except Exception as e:
-                logger.warning(f"本地模型加载失败: {str(e)}，使用简单文本嵌入")
-                # 使用简单的文本嵌入作为备选方案
-                self.embedding_model = SimpleTextEmbedding()
-                logger.info("使用简单文本嵌入模型")
+                logger.warning(f"SentenceTransformer模型加载失败: {str(e)}")
+                if self.fallback_to_simple:
+                    # 使用简单的文本嵌入作为备选方案
+                    self.embedding_model = SimpleTextEmbedding()
+                    logger.info("使用简单文本嵌入模型作为备选方案")
+                else:
+                    logger.error("嵌入模型加载失败，且未启用备选方案")
+                    raise e
     
     def _get_collection(self):
         """获取或创建集合"""
@@ -109,8 +136,8 @@ class VectorStore:
         
         return self.collection
     
-    def add_documents(self, documents: List[str], metadatas: List[Dict[str, Any]] = None, 
-                     ids: List[str] = None) -> bool:
+    def add_documents(self, documents: List[str], metadatas: Optional[List[Dict[str, Any]]] = None, 
+                     ids: Optional[List[str]] = None) -> bool:
         """添加文档到向量数据库"""
         try:
             if not documents:
@@ -149,7 +176,7 @@ class VectorStore:
             return False
     
     def search(self, query: str, n_results: int = 5, 
-              where: Dict[str, Any] = None) -> List[Dict[str, Any]]:
+              where: Optional[Dict[str, Any]] = None) -> List[Dict[str, Any]]:
         """搜索相关文档"""
         try:
             self._load_embedding_model()
@@ -314,7 +341,7 @@ class KnowledgeBase:
         
         return success
     
-    def search_knowledge(self, query: str, category: str = None, 
+    def search_knowledge(self, query: str, category: Optional[str] = None, 
                         n_results: int = 3) -> List[Dict[str, Any]]:
         """搜索相关知识"""
         where_filter = None

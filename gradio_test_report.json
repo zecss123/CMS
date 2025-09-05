@@ -1,0 +1,101 @@
+{
+  "summary": {
+    "total": 10,
+    "passed": 10,
+    "failed": 0,
+    "warnings": 0,
+    "success_rate": 100.0
+  },
+  "details": [
+    {
+      "test": "服务器连接性",
+      "status": "PASS",
+      "message": "Gradio应用正常运行",
+      "timestamp": "2025-08-29 15:17:56"
+    },
+    {
+      "test": "文件结构完整性",
+      "status": "PASS",
+      "message": "所有9个核心文件存在",
+      "timestamp": "2025-08-29 15:17:56"
+    },
+    {
+      "test": "模块导入-chat.chat_manager",
+      "status": "PASS",
+      "message": "ChatManager类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "模块导入-chat.session_manager",
+      "status": "PASS",
+      "message": "SessionManager类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "模块导入-knowledge.knowledge_manager",
+      "status": "PASS",
+      "message": "KnowledgeManager类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "模块导入-report.generator",
+      "status": "PASS",
+      "message": "CMSReportGenerator类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "模块导入-utils.chart_generator",
+      "status": "PASS",
+      "message": "VibrationChartGenerator类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "模块导入-utils.data_processor",
+      "status": "PASS",
+      "message": "VibrationDataProcessor类可用",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "配置文件加载",
+      "status": "PASS",
+      "message": "config.yaml加载成功",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "UI可访问性",
+      "status": "PASS",
+      "message": "所有5个主要UI元素存在",
+      "timestamp": "2025-08-29 15:18:02"
+    },
+    {
+      "test": "聊天功能",
+      "status": "PASS",
+      "message": "聊天管理器响应正常",
+      "timestamp": "2025-08-29 15:18:32"
+    },
+    {
+      "test": "数据处理功能",
+      "status": "PASS",
+      "message": "成功处理时域和频域特征",
+      "timestamp": "2025-08-29 15:18:32"
+    },
+    {
+      "test": "图表生成功能",
+      "status": "PASS",
+      "message": "时域和频域图表生成成功",
+      "timestamp": "2025-08-29 15:18:33"
+    },
+    {
+      "test": "报告生成功能",
+      "status": "PASS",
+      "message": "PDF报告生成成功",
+      "timestamp": "2025-08-29 15:18:33"
+    },
+    {
+      "test": "知识库管理功能",
+      "status": "PASS",
+      "message": "知识库统计: 0个文档",
+      "timestamp": "2025-08-29 15:19:03"
+    }
+  ]
+}

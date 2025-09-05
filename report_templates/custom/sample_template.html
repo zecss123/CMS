@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('自定义报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #007bff;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #007bff;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #007bff;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #007bff;
+            color: white;
+        }
+        .status-good { color: #28a745; font-weight: bold; }
+        .status-warning { color: #ffc107; font-weight: bold; }
+        .status-danger { color: #dc3545; font-weight: bold; }
+        .status-info { color: #17a2b8; font-weight: bold; }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .custom-box {
+            background-color: #e3f2fd;
+            border: 1px solid #bbdefb;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .highlight {
+            background-color: #fff3cd;
+            padding: 5px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('自定义报告') }}</h1>
+        {% if show_equipment_info | default(true) %}
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>报告类型:</strong> {{ report_type | default('自定义') }}</p>
+        {% endif %}
+        <p><strong>报告日期:</strong> {{ report_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('CUSTOM-' + report_date) }}</p>
+    </div>
+    
+    {% if show_summary | default(true) %}
+    <div class="section">
+        <h2>{{ section_1_title | default('1. 概述') }}</h2>
+        <div class="custom-box">
+            <p><strong>{{ summary_label | default('报告摘要') }}:</strong></p>
+            <p>{{ report_summary | default('这是一个可自定义的报告模板，可以根据具体需求调整内容和格式') }}</p>
+        </div>
+        
+        {% if show_key_points | default(true) %}
+        <p><strong>{{ key_points_label | default('关键要点') }}:</strong></p>
+        <ul>
+        {% for point in key_points | default([]) %}
+            <li>{{ point }}</li>
+        {% else %}
+            <li>{{ default_key_point_1 | default('可自定义的内容结构') }}</li>
+            <li>{{ default_key_point_2 | default('灵活的样式配置') }}</li>
+            <li>{{ default_key_point_3 | default('支持条件显示') }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_data_section | default(true) %}
+    <div class="section">
+        <h2>{{ section_2_title | default('2. 数据分析') }}</h2>
+        
+        {% if show_data_table | default(true) %}
+        <table class="data-table">
+            <tr>
+                <th>{{ table_header_1 | default('项目') }}</th>
+                <th>{{ table_header_2 | default('数值') }}</th>
+                <th>{{ table_header_3 | default('状态') }}</th>
+                <th>{{ table_header_4 | default('备注') }}</th>
+            </tr>
+            {% for row in data_rows | default([]) %}
+            <tr>
+                <td>{{ row.item }}</td>
+                <td>{{ row.value }}</td>
+                <td><span class="{% if row.status == '正常' %}status-good{% elif row.status == '警告' %}status-warning{% elif row.status == '危险' %}status-danger{% else %}status-info{% endif %}">{{ row.status }}</span></td>
+                <td>{{ row.notes }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_item_1 | default('参数1') }}</td>
+                <td>{{ default_value_1 | default('100') }}</td>
+                <td><span class="status-good">{{ default_status_1 | default('正常') }}</span></td>
+                <td>{{ default_notes_1 | default('运行正常') }}</td>
+            </tr>
+            <tr>
+                <td>{{ default_item_2 | default('参数2') }}</td>
+                <td>{{ default_value_2 | default('85') }}</td>
+                <td><span class="status-warning">{{ default_status_2 | default('警告') }}</span></td>
+                <td>{{ default_notes_2 | default('需要关注') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+        
+        {% if show_chart | default(false) %}
+        <div class="chart-container">
+            <h3>{{ chart_title | default('数据图表') }}</h3>
+            {% if chart_image %}
+            <img src="data:image/png;base64,{{ chart_image }}" alt="{{ chart_alt_text | default('数据图表') }}" style="max-width: 100%;">
+            {% else %}
+            <p>{{ no_chart_message | default('图表数据暂未提供') }}</p>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_analysis_section | default(true) %}
+    <div class="section">
+        <h2>{{ section_3_title | default('3. 分析结果') }}</h2>
+        
+        <p><strong>{{ analysis_label | default('分析方法') }}:</strong> {{ analysis_method | default('基于数据的综合分析') }}</p>
+        
+        <div class="custom-box">
+            <p><strong>{{ findings_label | default('主要发现') }}:</strong></p>
+            {% for finding in analysis_findings | default([]) %}
+            <p>{{ loop.index }}. {{ finding }}</p>
+            {% else %}
+            <p>1. {{ default_finding_1 | default('数据显示系统运行稳定') }}</p>
+            <p>2. {{ default_finding_2 | default('部分指标需要持续监测') }}</p>
+            {% endfor %}
+        </div>
+        
+        {% if show_risk_assessment | default(false) %}
+        <p><strong>{{ risk_label | default('风险评估') }}:</strong></p>
+        <p>{{ risk_assessment | default('整体风险水平较低，建议继续监测') }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_recommendations | default(true) %}
+    <div class="section">
+        <h2>{{ section_4_title | default('4. 建议措施') }}</h2>
+        
+        <p><strong>{{ immediate_actions_label | default('即时行动') }}:</strong></p>
+        <ol>
+        {% for action in immediate_actions | default([]) %}
+            <li>{{ action }}</li>
+        {% else %}
+            <li>{{ default_immediate_action | default('继续监测关键参数') }}</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>{{ long_term_actions_label | default('长期计划') }}:</strong></p>
+        <ol>
+        {% for plan in long_term_plans | default([]) %}
+            <li>{{ plan }}</li>
+        {% else %}
+            <li>{{ default_long_term_plan | default('制定改进计划') }}</li>
+        {% endfor %}
+        </ol>
+        
+        {% if show_priority_matrix | default(false) %}
+        <table class="data-table">
+            <tr><th>建议</th><th>优先级</th><th>时间框架</th><th>负责人</th></tr>
+            {% for recommendation in priority_recommendations | default([]) %}
+            <tr>
+                <td>{{ recommendation.action }}</td>
+                <td><span class="{% if recommendation.priority == '高' %}status-danger{% elif recommendation.priority == '中' %}status-warning{% else %}status-good{% endif %}">{{ recommendation.priority }}</span></td>
+                <td>{{ recommendation.timeframe }}</td>
+                <td>{{ recommendation.responsible }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_additional_sections | default(false) %}
+    {% for additional_section in additional_sections | default([]) %}
+    <div class="section">
+        <h2>{{ additional_section.title }}</h2>
+        <p>{{ additional_section.content }}</p>
+        
+        {% if additional_section.show_list | default(false) %}
+        <ul>
+        {% for item in additional_section.list_items | default([]) %}
+            <li>{{ item }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if additional_section.show_table | default(false) %}
+        <table class="data-table">
+            {% for row in additional_section.table_data | default([]) %}
+            <tr>
+                {% for cell in row %}
+                <td>{{ cell }}</td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    {% endfor %}
+    {% endif %}
+    
+    {% if show_conclusion | default(true) %}
+    <div class="section">
+        <h2>{{ conclusion_title | default('结论') }}</h2>
+        <div class="custom-box">
+            <p><strong>{{ conclusion_label | default('总结') }}:</strong></p>
+            <p>{{ conclusion_text | default('基于以上分析，建议继续按计划执行相关措施，并定期评估效果') }}</p>
+        </div>
+        
+        {% if show_next_steps | default(true) %}
+        <p><strong>{{ next_steps_label | default('下一步行动') }}:</strong></p>
+        <ul>
+        {% for step in next_steps | default([]) %}
+            <li>{{ step }}</li>
+        {% else %}
+            <li>{{ default_next_step | default('按计划执行建议措施') }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if show_follow_up | default(true) %}
+        <p><strong>{{ follow_up_label | default('跟踪计划') }}:</strong> {{ follow_up_plan | default('定期评估和更新') }}</p>
+        <p><strong>{{ next_review_label | default('下次评估时间') }}:</strong> {{ next_review_date | default('根据需要确定') }}</p>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    {% if show_appendix | default(false) %}
+    <div class="section">
+        <h2>{{ appendix_title | default('附录') }}</h2>
+        
+        {% if show_technical_details | default(false) %}
+        <p><strong>{{ technical_details_label | default('技术细节') }}:</strong></p>
+        <p>{{ technical_details | default('详细技术信息可根据需要添加') }}</p>
+        {% endif %}
+        
+        {% if show_references | default(false) %}
+        <p><strong>{{ references_label | default('参考资料') }}:</strong></p>
+        <ul>
+        {% for reference in references | default([]) %}
+            <li>{{ reference }}</li>
+        {% else %}
+            <li>{{ default_reference | default('相关标准和规范') }}</li>
+        {% endfor %}
+        </ul>
+        {% endif %}
+        
+        {% if show_glossary | default(false) %}
+        <p><strong>{{ glossary_label | default('术语解释') }}:</strong></p>
+        <table class="data-table">
+            <tr><th>术语</th><th>定义</th></tr>
+            {% for term in glossary_terms | default([]) %}
+            <tr>
+                <td>{{ term.name }}</td>
+                <td>{{ term.definition }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% endif %}
+    </div>
+    {% endif %}
+    
+    <div class="footer">
+        <p><strong>{{ author_label | default('报告编制') }}:</strong> {{ report_author | default('CMS系统') }}</p>
+        {% if show_reviewer | default(false) %}
+        <p><strong>{{ reviewer_label | default('审核人员') }}:</strong> {{ report_reviewer | default('系统管理员') }}</p>
+        {% endif %}
+        {% if show_approver | default(false) %}
+        <p><strong>{{ approver_label | default('批准人员') }}:</strong> {{ report_approver | default('部门经理') }}</p>
+        {% endif %}
+        <p><strong>{{ generation_time_label | default('报告生成时间') }}:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>{{ system_version_label | default('系统版本') }}:</strong> {{ system_version | default('CMS自定义报告系统 v2.1.0') }}</p>
+        {% if show_disclaimer | default(false) %}
+        <p><em>{{ disclaimer_text | default('本报告仅供参考，具体决策请结合实际情况') }}</em></p>
+        {% endif %}
+    </div>
+</body>
+</html>

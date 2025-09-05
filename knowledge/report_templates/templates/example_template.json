@@ -1,0 +1,101 @@
+{
+  "template_info": {
+    "name": "振动分析标准报告模板",
+    "version": "1.0.0",
+    "description": "用于振动分析的标准报告模板，包含时域分析、频域分析和结论部分",
+    "author": "CMS团队",
+    "created_at": "2023-11-01T10:00:00",
+    "updated_at": "2023-11-01T10:00:00"
+  },
+  "sections": [
+    {
+      "id": "header",
+      "name": "报告头部",
+      "type": "text",
+      "content": {
+        "text": "# {{report_title}}\n\n**设备名称**: {{device_name}}\n**测点位置**: {{measurement_point}}\n**分析时间**: {{analysis_time}}\n**报告生成**: {{now()}}\n"
+      }
+    },
+    {
+      "id": "overview",
+      "name": "概述",
+      "type": "text",
+      "content": {
+        "text": "## 分析概述\n\n本报告提供了对{{device_name}}在{{measurement_point}}位置的振动数据分析结果。分析包括时域分析、频域分析以及相关的诊断结论。\n\n**采样频率**: {{sampling_rate}} Hz\n**采样时长**: {{sampling_duration}} 秒\n**采样点数**: {{sample_count}}\n"
+      }
+    },
+    {
+      "id": "time_domain",
+      "name": "时域分析",
+      "type": "image_text_pair",
+      "content": {
+        "image_placeholder": "{{time_domain_chart}}",
+        "text_template": "## 时域分析\n\n时域波形显示了振动信号随时间的变化。从图中可以观察到:\n\n- 最大振幅: {{format_number(max_amplitude, 2)}} {{amplitude_unit}}\n- RMS值: {{format_number(rms_value, 2)}} {{amplitude_unit}}\n- 峰峰值: {{format_number(peak_to_peak, 2)}} {{amplitude_unit}}\n\n{{time_domain_description}}"
+      }
+    },
+    {
+      "id": "frequency_domain",
+      "name": "频域分析",
+      "type": "image_text_pair",
+      "content": {
+        "image_placeholder": "{{frequency_domain_chart}}",
+        "text_template": "## 频域分析\n\n频谱分析显示了振动信号在不同频率下的能量分布。主要特征:\n\n- 主频率: {{format_number(main_frequency, 2)}} Hz\n- 主频幅值: {{format_number(main_amplitude, 2)}} {{amplitude_unit}}\n- 谐波数量: {{harmonic_count}}\n\n{{frequency_domain_description}}"
+      }
+    },
+    {
+      "id": "analysis_result",
+      "name": "分析结论",
+      "type": "analysis_conclusion",
+      "content": {
+        "conclusion_template": "## 分析结论\n\n根据时域和频域分析结果，得出以下结论:\n\n{{analysis_conclusion}}\n\n### 健康状态评估\n\n- 设备状态: **{{health_status}}**\n- 置信度: {{format_number(confidence, 2)}}%\n- 建议操作: {{recommended_action}}",
+        "polish_config": {
+          "style": "professional",
+          "focus_points": ["异常特征", "可能原因", "严重程度"],
+          "max_length": 500
+        }
+      }
+    },
+    {
+      "id": "footer",
+      "name": "报告尾部",
+      "type": "text",
+      "content": {
+        "text": "---\n\n*本报告由CMS振动分析系统自动生成*\n\n**分析师**: {{analyst_name}}\n**报告编号**: {{report_id}}\n**版本**: {{report_version}}\n"
+      }
+    }
+  ],
+  "format_config": {
+    "page_settings": {
+      "size": "A4",
+      "orientation": "portrait",
+      "margins": {
+        "top": "2cm",
+        "bottom": "2cm",
+        "left": "2.5cm",
+        "right": "2.5cm"
+      }
+    },
+    "styles": {
+      "font_family": "Microsoft YaHei, SimHei, Arial, sans-serif",
+      "base_font_size": "11pt",
+      "heading_font_size": {
+        "h1": "18pt",
+        "h2": "16pt",
+        "h3": "14pt"
+      },
+      "colors": {
+        "primary": "#1a73e8",
+        "secondary": "#4285f4",
+        "text": "#202124",
+        "background": "#ffffff",
+        "accent": "#fbbc04"
+      }
+    },
+    "chart_settings": {
+      "width": "100%",
+      "height": "400px",
+      "theme": "light",
+      "responsive": true
+    }
+  }
+}

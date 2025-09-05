@@ -1,0 +1,179 @@
+{
+  "templates": {
+    "simple_vibration_template": {
+      "name": "简单振动分析报告模板",
+      "description": "适用于日常振动分析的标准报告模板，包含基本设备信息、振动数据、图表分析和建议措施",
+      "author": "CMS系统团队",
+      "version": "1.0.0",
+      "created_at": "2024-08-19T15:00:00Z",
+      "updated_at": "2024-08-19T15:00:00Z",
+      "tags": ["振动分析", "标准报告", "风机设备", "日常监测"],
+      "category": "report",
+      "variables": [
+        {
+          "name": "report_title",
+          "type": "string",
+          "description": "报告标题",
+          "required": false,
+          "default": "振动分析报告",
+          "example": "风机WTG001振动分析报告"
+        },
+        {
+          "name": "turbine_id",
+          "type": "string",
+          "description": "设备编号",
+          "required": true,
+          "example": "WTG001"
+        },
+        {
+          "name": "analysis_date",
+          "type": "string",
+          "description": "分析日期",
+          "required": false,
+          "format": "YYYY-MM-DD",
+          "example": "2024-08-19"
+        },
+        {
+          "name": "analyst_name",
+          "type": "string",
+          "description": "分析师姓名",
+          "required": false,
+          "default": "系统自动生成",
+          "example": "张工程师"
+        },
+        {
+          "name": "location",
+          "type": "string",
+          "description": "设备位置",
+          "required": false,
+          "example": "A区第1排第3台"
+        },
+        {
+          "name": "model",
+          "type": "string",
+          "description": "设备型号",
+          "required": false,
+          "example": "GW2.5-121"
+        },
+        {
+          "name": "measurement_point",
+          "type": "string",
+          "description": "测量点位置",
+          "required": false,
+          "example": "主轴承水平方向"
+        },
+        {
+          "name": "rms_value",
+          "type": "float",
+          "description": "RMS有效值",
+          "required": false,
+          "unit": "mm/s",
+          "example": 2.5
+        },
+        {
+          "name": "peak_value",
+          "type": "float",
+          "description": "峰值",
+          "required": false,
+          "unit": "mm/s",
+          "example": 8.2
+        },
+        {
+          "name": "main_frequency",
+          "type": "float",
+          "description": "主频率",
+          "required": false,
+          "unit": "Hz",
+          "example": 50.5
+        },
+        {
+          "name": "alarm_level",
+          "type": "string",
+          "description": "报警级别",
+          "required": false,
+          "enum": ["normal", "warning", "danger"],
+          "example": "normal"
+        },
+        {
+          "name": "analysis_overview",
+          "type": "string",
+          "description": "分析概述",
+          "required": false,
+          "example": "本次分析针对设备WTG001进行了全面的振动监测，采集了时域和频域数据。"
+        },
+        {
+          "name": "conclusion",
+          "type": "string",
+          "description": "分析结论",
+          "required": false,
+          "example": "设备运行状态良好，振动水平在正常范围内，建议继续监测。"
+        },
+        {
+          "name": "charts",
+          "type": "array",
+          "description": "图表数据列表",
+          "required": false,
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": {
+                "type": "string",
+                "description": "图表标题",
+                "example": "时域波形图"
+              },
+              "data": {
+                "type": "string",
+                "description": "Base64编码的图片数据",
+                "format": "base64"
+              },
+              "description": {
+                "type": "string",
+                "description": "图表描述",
+                "example": "显示设备在测量时间段内的振动时域特征"
+              }
+            }
+          }
+        },
+        {
+          "name": "recommendations",
+          "type": "array",
+          "description": "建议措施列表",
+          "required": false,
+          "items": {
+            "type": "string"
+          },
+          "example": [
+            "继续按计划进行定期监测",
+            "关注主频率变化趋势",
+            "如发现异常立即停机检查"
+          ]
+        },
+        {
+          "name": "generation_time",
+          "type": "string",
+          "description": "报告生成时间",
+          "required": false,
+          "format": "YYYY-MM-DD HH:mm:ss",
+          "example": "2024-08-19 15:30:25"
+        }
+      ],
+      "output_formats": ["html", "pdf"],
+      "file_path": "examples/simple_vibration_template.html",
+      "preview_image": null,
+      "usage_count": 0,
+      "rating": 5.0,
+      "status": "active",
+      "notes": "这是一个完整的振动分析报告模板示例，包含了所有常用的变量和格式。用户可以基于此模板进行修改和定制。"
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "last_updated": "2024-08-19T15:00:00Z",
+    "total_templates": 1,
+    "categories": {
+      "report": 1,
+      "summary": 0
+    },
+    "description": "示例模板元数据文件，包含了一个完整的振动分析报告模板定义"
+  }
+}

@@ -18,7 +18,10 @@ import io
 from loguru import logger
 
 # 设置中文字体
-plt.rcParams['font.sans-serif'] = ['SimHei', 'DejaVu Sans']
+try:
+    plt.rcParams['font.sans-serif'] = ['SimHei', 'WenQuanYi Micro Hei', 'DejaVu Sans', 'Arial Unicode MS']
+except:
+    plt.rcParams['font.sans-serif'] = ['DejaVu Sans']
 plt.rcParams['axes.unicode_minus'] = False
 
 class VibrationChartGenerator:
@@ -498,6 +501,268 @@ class VibrationChartGenerator:
         except Exception as e:
             logger.error(f"创建交互式图表失败: {e}")
             return ""
+    
+    def create_chart_with_text_annotation(self, chart_data: Dict[str, Any], 
+                                        polished_text: str,
+                                        chart_type: str = "time_series",
+                                        title: str = "图文组合分析",
+                                        save_path: Optional[str] = None) -> str:
+        """创建带文本注释的图表组合"""
+        try:
+            # 创建图表和文本的组合布局
+            fig, (ax_chart, ax_text) = plt.subplots(2, 1, figsize=(12, 10), 
+                                                   gridspec_kw={'height_ratios': [3, 1]})
+            
+            # 根据图表类型生成相应图表
+            if chart_type == "time_series" and "signal" in chart_data:
+                signal = chart_data["signal"]
+                sampling_rate = chart_data.get("sampling_rate", 2048)
+                time = np.arange(len(signal)) / sampling_rate
+                
+                ax_chart.plot(time, signal, color=self.colors["primary"], linewidth=0.8)
+                ax_chart.set_xlabel("时间 (s)")
+                ax_chart.set_ylabel("振幅")
+                ax_chart.set_title(f"{title} - 时域波形")
+                ax_chart.grid(True, alpha=0.3)
+                
+            elif chart_type == "frequency" and "frequencies" in chart_data:
+                frequencies = chart_data["frequencies"]
+                magnitudes = chart_data["magnitudes"]
+                
+                ax_chart.plot(frequencies, magnitudes, color=self.colors["secondary"], linewidth=1.2)
+                ax_chart.set_xlabel("频率 (Hz)")
+                ax_chart.set_ylabel("幅值")
+                ax_chart.set_title(f"{title} - 频谱图")
+                ax_chart.grid(True, alpha=0.3)
+                
+            elif chart_type == "trend" and "trend_data" in chart_data:
+                trend_data = chart_data["trend_data"]
+                timestamps = []
+                values = []
+                
+                for data_point in trend_data:
+                    if "timestamp" in data_point and "value" in data_point:
+                        try:
+                            timestamp = datetime.fromisoformat(data_point["timestamp"])
+                            timestamps.append(timestamp)
+                            values.append(data_point["value"])
+                        except:
+                            continue
+                
+                if timestamps and values:
+                    ax_chart.plot(timestamps, values, color=self.colors["primary"], 
+                                linewidth=2, marker='o', markersize=4)
+                    ax_chart.set_xlabel("时间")
+                    ax_chart.set_ylabel("数值")
+                    ax_chart.set_title(f"{title} - 趋势图")
+                    ax_chart.grid(True, alpha=0.3)
+                    
+                    # 格式化时间轴
+                    ax_chart.xaxis.set_major_formatter(mdates.DateFormatter('%m-%d %H:%M'))
+                    plt.setp(ax_chart.xaxis.get_majorticklabels(), rotation=45)
+            
+            # 添加文本注释区域
+            ax_text.axis('off')  # 隐藏坐标轴
+            
+            # 处理长文本，自动换行
+            import textwrap
+            wrapped_text = textwrap.fill(polished_text, width=80)
+            
+            ax_text.text(0.05, 0.95, "分析结论:", transform=ax_text.transAxes, 
+                        fontsize=12, fontweight='bold', verticalalignment='top')
+            ax_text.text(0.05, 0.85, wrapped_text, transform=ax_text.transAxes, 
+                        fontsize=10, verticalalignment='top', wrap=True,
+                        bbox=dict(boxstyle='round,pad=0.5', facecolor='lightblue', alpha=0.3))
+            
+            plt.tight_layout()
+            
+            if save_path:
+                plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            
+            # 转换为base64字符串
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return image_base64
+            
+        except Exception as e:
+            logger.error(f"创建图文组合失败: {e}")
+            plt.close()
+            return ""
+    
+    def create_multi_chart_report(self, charts_data: List[Dict[str, Any]], 
+                                polished_texts: List[str],
+                                report_title: str = "振动分析报告",
+                                save_path: Optional[str] = None) -> str:
+        """创建多图表报告，每个图表配对相应的润色文本"""
+        try:
+            num_charts = len(charts_data)
+            if num_charts == 0:
+                logger.warning("没有图表数据")
+                return ""
+            
+            # 确保文本数量与图表数量匹配
+            if len(polished_texts) < num_charts:
+                polished_texts.extend(["暂无分析结论"] * (num_charts - len(polished_texts)))
+            
+            # 计算子图布局
+            cols = 1
+            rows = num_charts * 2  # 每个图表占用两行（图表+文本）
+            
+            fig = plt.figure(figsize=(12, 6 * num_charts))
+            
+            for i, (chart_data, text) in enumerate(zip(charts_data, polished_texts)):
+                # 图表子图
+                ax_chart = plt.subplot(rows, cols, i * 2 + 1)
+                
+                chart_type = chart_data.get("type", "time_series")
+                chart_title = chart_data.get("title", f"图表 {i+1}")
+                
+                if chart_type == "time_series" and "signal" in chart_data:
+                    signal = chart_data["signal"]
+                    sampling_rate = chart_data.get("sampling_rate", 2048)
+                    time = np.arange(len(signal)) / sampling_rate
+                    
+                    ax_chart.plot(time, signal, color=self.colors["primary"], linewidth=0.8)
+                    ax_chart.set_xlabel("时间 (s)")
+                    ax_chart.set_ylabel("振幅")
+                    ax_chart.set_title(chart_title)
+                    ax_chart.grid(True, alpha=0.3)
+                    
+                elif chart_type == "frequency" and "frequencies" in chart_data:
+                    frequencies = chart_data["frequencies"]
+                    magnitudes = chart_data["magnitudes"]
+                    
+                    ax_chart.plot(frequencies, magnitudes, color=self.colors["secondary"], linewidth=1.2)
+                    ax_chart.set_xlabel("频率 (Hz)")
+                    ax_chart.set_ylabel("幅值")
+                    ax_chart.set_title(chart_title)
+                    ax_chart.grid(True, alpha=0.3)
+                
+                # 文本子图
+                ax_text = plt.subplot(rows, cols, i * 2 + 2)
+                ax_text.axis('off')
+                
+                # 处理长文本
+                import textwrap
+                wrapped_text = textwrap.fill(text, width=80)
+                
+                ax_text.text(0.05, 0.95, f"分析结论 {i+1}:", transform=ax_text.transAxes, 
+                            fontsize=11, fontweight='bold', verticalalignment='top')
+                ax_text.text(0.05, 0.80, wrapped_text, transform=ax_text.transAxes, 
+                            fontsize=9, verticalalignment='top',
+                            bbox=dict(boxstyle='round,pad=0.3', facecolor='lightgray', alpha=0.3))
+            
+            plt.suptitle(report_title, fontsize=16, fontweight='bold')
+            plt.tight_layout()
+            
+            if save_path:
+                plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            
+            # 转换为base64字符串
+            buffer = io.BytesIO()
+            plt.savefig(buffer, format='png', dpi=150, bbox_inches='tight')
+            buffer.seek(0)
+            image_base64 = base64.b64encode(buffer.getvalue()).decode()
+            plt.close()
+            
+            return image_base64
+            
+        except Exception as e:
+            logger.error(f"创建多图表报告失败: {e}")
+            plt.close()
+            return ""
+    
+    def combine_chart_and_conclusion(self, chart_base64: str, conclusion_text: str, 
+                                   chart_title: str = "分析图表") -> Dict[str, Any]:
+        """组合图表和结论文本，返回结构化数据"""
+        try:
+            # 创建图文组合的结构化数据
+            combined_data = {
+                "chart_image": chart_base64,
+                "conclusion_text": conclusion_text,
+                "chart_title": chart_title,
+                "timestamp": datetime.now().isoformat(),
+                "metadata": {
+                    "image_format": "base64_png",
+                    "text_length": len(conclusion_text),
+                    "has_chart": bool(chart_base64),
+                    "has_text": bool(conclusion_text.strip())
+                }
+            }
+            
+            # 提取文本关键信息
+            if conclusion_text:
+                # 简单的关键词提取
+                keywords = []
+                key_terms = ["频率", "振幅", "RMS", "峰值", "趋势", "异常", "正常", "报警", "轴承", "齿轮"]
+                for term in key_terms:
+                    if term in conclusion_text:
+                        keywords.append(term)
+                
+                combined_data["keywords"] = keywords
+                combined_data["summary"] = conclusion_text[:100] + "..." if len(conclusion_text) > 100 else conclusion_text
+            
+            logger.info(f"成功组合图表和结论: {chart_title}")
+            return combined_data
+            
+        except Exception as e:
+            logger.error(f"组合图表和结论失败: {e}")
+            return {}
+    
+    def generate_chart_text_pairs(self, analysis_results: Dict[str, Any], 
+                                conclusions: Dict[str, str]) -> List[Dict[str, Any]]:
+        """生成图表-文本配对列表"""
+        try:
+            pairs = []
+            
+            # 时域分析配对
+            if "time_domain" in analysis_results and "time_domain" in conclusions:
+                time_chart = self.create_time_series_chart(
+                    analysis_results["time_domain"].get("signal", np.random.randn(1000)),
+                    analysis_results["time_domain"].get("sampling_rate", 2048),
+                    "时域波形分析"
+                )
+                if time_chart:
+                    pair = self.combine_chart_and_conclusion(
+                        time_chart, conclusions["time_domain"], "时域波形分析"
+                    )
+                    pairs.append(pair)
+            
+            # 频域分析配对
+            if "frequency_domain" in analysis_results and "frequency_domain" in conclusions:
+                freq_data = analysis_results["frequency_domain"]
+                freq_chart = self.create_frequency_spectrum(
+                    freq_data.get("frequencies", np.linspace(0, 1000, 500)),
+                    freq_data.get("magnitudes", np.random.exponential(0.1, 500)),
+                    "频谱分析"
+                )
+                if freq_chart:
+                    pair = self.combine_chart_and_conclusion(
+                        freq_chart, conclusions["frequency_domain"], "频谱分析"
+                    )
+                    pairs.append(pair)
+            
+            # 轴承分析配对
+            if "bearing_analysis" in analysis_results and "bearing_analysis" in conclusions:
+                bearing_chart = self.create_bearing_analysis_chart(
+                    analysis_results["bearing_analysis"], "轴承分析"
+                )
+                if bearing_chart:
+                    pair = self.combine_chart_and_conclusion(
+                        bearing_chart, conclusions["bearing_analysis"], "轴承分析"
+                    )
+                    pairs.append(pair)
+            
+            logger.info(f"生成了 {len(pairs)} 个图表-文本配对")
+            return pairs
+            
+        except Exception as e:
+            logger.error(f"生成图表-文本配对失败: {e}")
+            return []
 
 # 便捷函数
 def generate_vibration_charts(analysis_data: Dict[str, Any], output_dir: str = "./charts") -> Dict[str, str]:

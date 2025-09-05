@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ report_title | default('综合设备评估报告') }}</title>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', 'SimSun', Arial, sans-serif;
+            margin: 20px;
+            line-height: 1.6;
+            color: #333;
+        }
+        .header {
+            text-align: center;
+            border-bottom: 3px solid #6f42c1;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            color: #6f42c1;
+            margin-bottom: 10px;
+        }
+        .section {
+            margin: 25px 0;
+            padding: 15px;
+            border-left: 4px solid #6f42c1;
+            background-color: #f8f9fa;
+        }
+        .section h2 {
+            color: #6f42c1;
+            margin-top: 0;
+        }
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: #6f42c1;
+            color: white;
+        }
+        .health-excellent { color: #28a745; font-weight: bold; }
+        .health-good { color: #20c997; font-weight: bold; }
+        .health-fair { color: #ffc107; font-weight: bold; }
+        .health-poor { color: #fd7e14; font-weight: bold; }
+        .health-critical { color: #dc3545; font-weight: bold; }
+        .chart-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .summary-box {
+            background-color: #e7e3ff;
+            border: 1px solid #c3b5f7;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #ddd;
+            padding-top: 15px;
+        }
+        .score-display {
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>{{ report_title | default('综合设备评估报告') }}</h1>
+        <p><strong>设备名称:</strong> {{ equipment_name | default('未指定') }}</p>
+        <p><strong>评估周期:</strong> {{ assessment_period | default('未指定') }}</p>
+        <p><strong>报告日期:</strong> {{ report_date | default('未指定') }}</p>
+        <p><strong>报告编号:</strong> {{ report_number | default('CR-' + report_date) }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>1. 执行摘要</h2>
+        <div class="summary-box">
+            <p><strong>总体健康状态:</strong> 
+                <span class="{% if overall_health_status == '优秀' %}health-excellent{% elif overall_health_status == '良好' %}health-good{% elif overall_health_status == '一般' %}health-fair{% elif overall_health_status == '较差' %}health-poor{% else %}health-critical{% endif %}">
+                    {{ overall_health_status | default('良好') }}
+                </span>
+            </p>
+            <div class="score-display" style="background-color: #d4edda;">
+                综合健康评分: {{ overall_health_score | default('85') }}/100
+            </div>
+            <p><strong>关键发现:</strong> {{ key_findings | default('设备整体运行状态良好，建议继续监测关键参数') }}</p>
+        </div>
+        
+        <p><strong>评估范围:</strong></p>
+        <ul>
+        {% for scope in assessment_scope | default([]) %}
+            <li>{{ scope }}</li>
+        {% else %}
+            <li>振动分析</li>
+            <li>温度监测</li>
+            <li>性能评估</li>
+            <li>维护历史分析</li>
+        {% endfor %}
+        </ul>
+    </div>
+    
+    <div class="section">
+        <h2>2. 设备概况</h2>
+        <table class="data-table">
+            <tr><th>项目</th><th>信息</th></tr>
+            <tr><td>设备名称</td><td>{{ equipment_name | default('未指定') }}</td></tr>
+            <tr><td>设备型号</td><td>{{ equipment_model | default('未指定') }}</td></tr>
+            <tr><td>制造商</td><td>{{ manufacturer | default('未指定') }}</td></tr>
+            <tr><td>安装日期</td><td>{{ installation_date | default('未指定') }}</td></tr>
+            <tr><td>运行年限</td><td>{{ operating_years | default('N/A') }} 年</td></tr>
+            <tr><td>额定功率</td><td>{{ rated_power | default('N/A') }} kW</td></tr>
+            <tr><td>额定转速</td><td>{{ rated_speed | default('N/A') }} RPM</td></tr>
+            <tr><td>当前状态</td><td>{{ current_status | default('运行中') }}</td></tr>
+        </table>
+        
+        <p><strong>设备重要性:</strong> {{ equipment_criticality | default('高') }}</p>
+        <p><strong>生产影响:</strong> {{ production_impact | default('关键设备，停机将影响整条生产线') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>3. 振动分析</h2>
+        {% if vibration_chart %}
+        <div class="chart-container">
+            <h3>振动趋势分析</h3>
+            <img src="data:image/png;base64,{{ vibration_chart }}" alt="振动趋势图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <table class="data-table">
+            <tr><th>测量点</th><th>当前值</th><th>趋势</th><th>评估</th><th>建议</th></tr>
+            {% for point in vibration_measurements | default([]) %}
+            <tr>
+                <td>{{ point.location }}</td>
+                <td>{{ point.current_value }} mm/s</td>
+                <td>{{ point.trend }}</td>
+                <td><span class="{% if point.assessment == '正常' %}health-good{% elif point.assessment == '注意' %}health-fair{% else %}health-poor{% endif %}">{{ point.assessment }}</span></td>
+                <td>{{ point.recommendation }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>轴承座水平</td>
+                <td>{{ default_vibration_value | default('2.1') }} mm/s</td>
+                <td>{{ default_vibration_trend | default('稳定') }}</td>
+                <td><span class="health-good">正常</span></td>
+                <td>{{ default_vibration_recommendation | default('继续监测') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>振动分析结论:</strong> {{ vibration_conclusion | default('设备振动水平在正常范围内，未发现异常频率成分') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>4. 温度分析</h2>
+        {% if temperature_chart %}
+        <div class="chart-container">
+            <h3>温度监测趋势</h3>
+            <img src="data:image/png;base64,{{ temperature_chart }}" alt="温度趋势图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <table class="data-table">
+            <tr><th>监测点</th><th>当前温度</th><th>正常范围</th><th>状态</th><th>备注</th></tr>
+            {% for temp in temperature_measurements | default([]) %}
+            <tr>
+                <td>{{ temp.location }}</td>
+                <td>{{ temp.current_temp }}°C</td>
+                <td>{{ temp.normal_range }}°C</td>
+                <td><span class="{% if temp.status == '正常' %}health-good{% elif temp.status == '警告' %}health-fair{% else %}health-poor{% endif %}">{{ temp.status }}</span></td>
+                <td>{{ temp.notes }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>前轴承</td>
+                <td>{{ default_temp_value | default('65') }}°C</td>
+                <td>{{ default_temp_range | default('< 80') }}°C</td>
+                <td><span class="health-good">正常</span></td>
+                <td>{{ default_temp_notes | default('温度稳定') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>温度分析结论:</strong> {{ temperature_conclusion | default('各监测点温度正常，无过热现象') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>5. 性能评估</h2>
+        {% if performance_chart %}
+        <div class="chart-container">
+            <h3>性能指标趋势</h3>
+            <img src="data:image/png;base64,{{ performance_chart }}" alt="性能趋势图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <table class="data-table">
+            <tr><th>性能指标</th><th>当前值</th><th>设计值</th><th>效率</th><th>评级</th></tr>
+            {% for metric in performance_metrics | default([]) %}
+            <tr>
+                <td>{{ metric.name }}</td>
+                <td>{{ metric.current_value }}</td>
+                <td>{{ metric.design_value }}</td>
+                <td>{{ metric.efficiency }}%</td>
+                <td><span class="{% if metric.rating == '优秀' %}health-excellent{% elif metric.rating == '良好' %}health-good{% elif metric.rating == '一般' %}health-fair{% else %}health-poor{% endif %}">{{ metric.rating }}</span></td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>功率输出</td>
+                <td>{{ default_power_current | default('95') }} kW</td>
+                <td>{{ default_power_design | default('100') }} kW</td>
+                <td>{{ default_power_efficiency | default('95') }}%</td>
+                <td><span class="health-good">良好</span></td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>性能评估结论:</strong> {{ performance_conclusion | default('设备性能指标良好，运行效率符合预期') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>6. 维护历史分析</h2>
+        <table class="data-table">
+            <tr><th>维护日期</th><th>维护类型</th><th>主要内容</th><th>成本</th><th>效果</th></tr>
+            {% for maintenance in maintenance_history | default([]) %}
+            <tr>
+                <td>{{ maintenance.date }}</td>
+                <td>{{ maintenance.type }}</td>
+                <td>{{ maintenance.content }}</td>
+                <td>{{ maintenance.cost }}</td>
+                <td>{{ maintenance.effectiveness }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_maintenance_date | default('2024-01-15') }}</td>
+                <td>{{ default_maintenance_type | default('预防性维护') }}</td>
+                <td>{{ default_maintenance_content | default('润滑和检查') }}</td>
+                <td>{{ default_maintenance_cost | default('5000元') }}</td>
+                <td>{{ default_maintenance_effect | default('良好') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>维护频率分析:</strong> {{ maintenance_frequency_analysis | default('维护频率适当，建议保持当前维护计划') }}</p>
+        <p><strong>维护成本趋势:</strong> {{ maintenance_cost_trend | default('维护成本稳定，未出现异常增长') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>7. 故障历史分析</h2>
+        {% if fault_history | length > 0 %}
+        <table class="data-table">
+            <tr><th>故障日期</th><th>故障类型</th><th>停机时间</th><th>修复成本</th><th>根本原因</th><th>预防措施</th></tr>
+            {% for fault in fault_history %}
+            <tr>
+                <td>{{ fault.date }}</td>
+                <td>{{ fault.type }}</td>
+                <td>{{ fault.downtime }}</td>
+                <td>{{ fault.repair_cost }}</td>
+                <td>{{ fault.root_cause }}</td>
+                <td>{{ fault.prevention }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        {% else %}
+        <p>{{ no_faults_message | default('评估期间未发生重大故障') }}</p>
+        {% endif %}
+        
+        <p><strong>故障模式分析:</strong> {{ failure_mode_analysis | default('设备运行稳定，故障率低于行业平均水平') }}</p>
+        <p><strong>可靠性评估:</strong> {{ reliability_assessment | default('设备可靠性良好，MTBF指标符合预期') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>8. 风险评估</h2>
+        <table class="data-table">
+            <tr><th>风险类型</th><th>概率</th><th>影响程度</th><th>风险等级</th><th>缓解措施</th></tr>
+            {% for risk in identified_risks | default([]) %}
+            <tr>
+                <td>{{ risk.type }}</td>
+                <td>{{ risk.probability }}</td>
+                <td>{{ risk.impact }}</td>
+                <td><span class="{% if risk.level == '低' %}health-good{% elif risk.level == '中' %}health-fair{% else %}health-poor{% endif %}">{{ risk.level }}</span></td>
+                <td>{{ risk.mitigation }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td>{{ default_risk_type | default('轴承磨损') }}</td>
+                <td>{{ default_risk_probability | default('低') }}</td>
+                <td>{{ default_risk_impact | default('中等') }}</td>
+                <td><span class="health-fair">中</span></td>
+                <td>{{ default_risk_mitigation | default('定期润滑和监测') }}</td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+        <p><strong>总体风险评估:</strong> {{ overall_risk_assessment | default('设备整体风险可控，建议继续执行预防性维护') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>9. 经济性分析</h2>
+        <table class="data-table">
+            <tr><th>成本类型</th><th>年度成本</th><th>占比</th><th>趋势</th></tr>
+            <tr>
+                <td>维护成本</td>
+                <td>{{ annual_maintenance_cost | default('N/A') }}</td>
+                <td>{{ maintenance_cost_ratio | default('N/A') }}%</td>
+                <td>{{ maintenance_cost_trend | default('稳定') }}</td>
+            </tr>
+            <tr>
+                <td>能耗成本</td>
+                <td>{{ annual_energy_cost | default('N/A') }}</td>
+                <td>{{ energy_cost_ratio | default('N/A') }}%</td>
+                <td>{{ energy_cost_trend | default('稳定') }}</td>
+            </tr>
+            <tr>
+                <td>停机损失</td>
+                <td>{{ annual_downtime_cost | default('N/A') }}</td>
+                <td>{{ downtime_cost_ratio | default('N/A') }}%</td>
+                <td>{{ downtime_cost_trend | default('下降') }}</td>
+            </tr>
+        </table>
+        
+        <p><strong>投资回报分析:</strong> {{ roi_analysis | default('设备投资回报良好，建议继续使用') }}</p>
+        <p><strong>生命周期成本:</strong> {{ lifecycle_cost_analysis | default('设备处于经济运行期，维护成本合理') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>10. 预测性分析</h2>
+        {% if prediction_chart %}
+        <div class="chart-container">
+            <h3>设备健康度预测</h3>
+            <img src="data:image/png;base64,{{ prediction_chart }}" alt="预测分析图" style="max-width: 100%;">
+        </div>
+        {% endif %}
+        
+        <p><strong>剩余使用寿命预测:</strong> {{ remaining_useful_life | default('预计还可正常运行5-8年') }}</p>
+        <p><strong>关键部件更换预测:</strong></p>
+        <ul>
+        {% for prediction in component_predictions | default([]) %}
+            <li>{{ prediction.component }}: {{ prediction.predicted_replacement_time }} (置信度: {{ prediction.confidence }}%)</li>
+        {% else %}
+            <li>{{ default_component_prediction | default('主轴承: 预计2年后更换 (置信度: 75%)') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>性能退化预测:</strong> {{ performance_degradation_prediction | default('预计性能将以每年2%的速度缓慢下降') }}</p>
+    </div>
+    
+    <div class="section">
+        <h2>11. 改进建议</h2>
+        <p><strong>短期建议 (1-3个月):</strong></p>
+        <ol>
+        {% for suggestion in short_term_suggestions | default([]) %}
+            <li>{{ suggestion }}</li>
+        {% else %}
+            <li>{{ default_short_term | default('加强日常巡检，重点关注振动和温度变化') }}</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>中期建议 (3-12个月):</strong></p>
+        <ol>
+        {% for suggestion in medium_term_suggestions | default([]) %}
+            <li>{{ suggestion }}</li>
+        {% else %}
+            <li>{{ default_medium_term | default('考虑升级监测系统，实现在线监测') }}</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>长期建议 (1-3年):</strong></p>
+        <ol>
+        {% for suggestion in long_term_suggestions | default([]) %}
+            <li>{{ suggestion }}</li>
+        {% else %}
+            <li>{{ default_long_term | default('制定设备更新换代计划') }}</li>
+        {% endfor %}
+        </ol>
+    </div>
+    
+    <div class="section">
+        <h2>12. 结论与行动计划</h2>
+        <div class="summary-box">
+            <p><strong>总体结论:</strong></p>
+            <p>{{ overall_conclusion | default('设备整体状态良好，各项指标正常。建议继续执行预防性维护计划，加强关键参数监测。') }}</p>
+        </div>
+        
+        <p><strong>优先行动项:</strong></p>
+        <ol>
+        {% for action in priority_actions | default([]) %}
+            <li><strong>{{ action.title }}:</strong> {{ action.description }} (截止日期: {{ action.deadline }}, 负责人: {{ action.responsible }})</li>
+        {% else %}
+            <li><strong>{{ default_action_title | default('维护计划执行') }}:</strong> {{ default_action_description | default('按计划执行下次预防性维护') }} (截止日期: {{ default_action_deadline | default('下月15日') }}, 负责人: {{ default_action_responsible | default('维护团队') }})</li>
+        {% endfor %}
+        </ol>
+        
+        <p><strong>关键绩效指标监测:</strong></p>
+        <ul>
+        {% for kpi in monitoring_kpis | default([]) %}
+            <li>{{ kpi.name }}: 目标值 {{ kpi.target }}, 当前值 {{ kpi.current }}</li>
+        {% else %}
+            <li>{{ default_kpi | default('设备可用性: 目标值 95%+, 当前值 98%') }}</li>
+        {% endfor %}
+        </ul>
+        
+        <p><strong>下次评估时间:</strong> {{ next_assessment_date | default('6个月后') }}</p>
+    </div>
+    
+    <div class="footer">
+        <p><strong>评估团队负责人:</strong> {{ assessment_team_leader | default('设备工程师') }}</p>
+        <p><strong>技术审核:</strong> {{ technical_reviewer | default('技术主管') }}</p>
+        <p><strong>管理审批:</strong> {{ management_approver | default('设备经理') }}</p>
+        <p><strong>报告生成时间:</strong> {{ generation_time | default('未指定') }}</p>
+        <p><strong>系统版本:</strong> CMS综合评估系统 v2.1.0</p>
+    </div>
+</body>
+</html>

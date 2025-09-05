@@ -1,0 +1,64 @@
+{
+  "title": "CMS振动分析报告 (离线演示版)",
+  "report_title": "CMS振动分析报告 (离线演示版)",
+  "turbine_id": "DEMO-001",
+  "equipment_name": "演示风机设备",
+  "equipment_model": "模拟型号",
+  "location": "离线演示环境",
+  "measurement_point": "主轴承",
+  "analysis_date": "2025-09-03",
+  "generation_time": "2025-09-03 17:05:16",
+  "analyst_name": "CMS离线演示系统",
+  "health_status": "良好",
+  "executive_summary": "本次振动分析基于模拟数据进行演示。设备当前状态为良好，风险等级为低。📊 振动水平在正常范围内\n📈 趋势分析显示设备性能稳定",
+  "basic_info": {
+    "wind_farm": "离线演示风场",
+    "turbine_id": "DEMO-001",
+    "equipment_name": "演示风机设备",
+    "equipment_model": "模拟型号",
+    "measurement_date": "2025-09-03",
+    "report_date": "2025-09-03",
+    "operator": "CMS离线演示系统",
+    "equipment_status": "运行中",
+    "measurement_point": "主轴承",
+    "record_count": 7,
+    "time_range": "2025-09-03 16:05:11 ~ 2025-09-03 17:05:11"
+  },
+  "measurement_results": [
+    {
+      "measurement_point": "Speed",
+      "rms_value": 1526.0006480727404,
+      "peak_value": 1578.9606407753695,
+      "main_frequency": 25.0,
+      "alarm_level": "critical"
+    },
+    {
+      "measurement_point": "Time_Domain_RMS_Value",
+      "rms_value": 0.5116001271879028,
+      "peak_value": 0.7102479549888814,
+      "main_frequency": 25.0,
+      "alarm_level": "normal"
+    },
+    {
+      "measurement_point": "Time_Domain_10_5000Hz_Acceleration_RMS",
+      "rms_value": 1.9526139474287807,
+      "peak_value": 3.2797440155188964,
+      "main_frequency": 25.0,
+      "alarm_level": "critical"
+    }
+  ],
+  "charts": {
+    "振动趋势图": "iVBORw0KGgoAAAANSUhEUgAABvYAAANyCAYAAAC5bvzYAAAAOnRFWHRTb2Z0d2FyZQBNYXRwbG90bGliIHZlcnNpb24zLjEwLjUs...[截断]"
+  },
+  "analysis_conclusion": "📊 振动水平在正常范围内\n📈 趋势分析显示设备性能稳定",
+  "recommendations": [
+    "继续按计划进行常规维护",
+    "保持当前监测频率"
+  ],
+  "risk_assessment": {
+    "风险等级": "低",
+    "主要风险": "基于模拟数据的演示分析"
+  },
+  "next_inspection_date": "2025-10-03",
+  "report_version": "离线演示版 v1.0"
+}
